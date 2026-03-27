@@ -1,0 +1,50 @@
+{
+    "itemGroup.acau_hardcore.creative_tab": "하드코어",
+
+    "item.acau_hardcore.hardcore_ticket": "하드코어 입장권",
+    "item.acau_hardcore.water.dirty": "더러운 물",
+    "item.acau_hardcore.water.purified": "정수된 물",
+    "item.acau_hardcore.water.clean": "깨끗한 물",
+    "item.acau_hardcore.id_card": "닉네임 변경권",
+    "item.acau_hardcore.rune.life": "생활 룬",
+    "item.acau_hardcore.rune.combat": "전투 룬",
+    "item.acau_hardcore.scroll.town_return": "중앙 마을 귀환 주문서",
+    "item.acau_hardcore.food.survival_food": "비상식량",
+    "item.acau_hardcore.food.combat_ration": "전투식량",
+    "item.acau_hardcore.medical_kit": "치료용 주사기",
+    "item.acau_hardcore.swamp_coin": "늪지대 코인",
+    "item.acau_hardcore.jail_key": "감옥 탈출용 열쇠",
+    "item.acau_hardcore.invitation": "초대장",
+    "item.acau_hardcore.gem.coal": "결정화된 석탄",
+    "item.acau_hardcore.gem.iron": "결정화된 철",
+    "item.acau_hardcore.gem.gold": "결정화된 금",
+    "item.acau_hardcore.gem.copper": "결정화된 구리",
+    "item.acau_hardcore.gem.diamond": "결정화된 다이아몬드",
+    "item.acau_hardcore.gem.emerald": "결정화된 에메랄드",
+    "item.acau_hardcore.gem.lapis": "결정화된 청금석",
+    "item.acau_hardcore.gem.redstone": "결정화된 레드스톤",
+    "item.acau_hardcore.gem.obsidian": "결정화된 흑요석",
+    "item.acau_hardcore.housing.tool": "거주구역 지정 도구",
+    "item.acau_hardcore.housing.tier_1": "구역 점유 문서(1단계)",
+    "item.acau_hardcore.housing.tier_2": "구역 강화 문서(2단계)",
+    "item.acau_hardcore.housing.tier_3": "구역 강화 문서(3단계)",
+
+    "dimension.minecraft.overworld": "로비",
+
+    "dimension.acau_hardcore.beginner_overworld": "바닐라",
+    "dimension.minecraft.the_nether": "바닐라",
+    "dimension.minecraft.the_end": "바닐라",
+
+    "dimension.acau_hardcore.expert_overworld": "숙련자",
+    "dimension.acau_hardcore.expert_nether": "숙련자",
+    "dimension.acau_hardcore.expert_end": "숙련자",
+
+    "key.category.acau_hardcore.general": "하드코어",
+    "key.mailbox.open": "메일함 열기",
+    "key.help_request.open": "도움 요청 목록 열기(관리자 전용)",
+
+    "attribute.acau_hardcore.life_steal": "생명력 흡수",
+    "attribute.acau_hardcore.crit_chance": "치명타 확률",
+    "attribute.acau_hardcore.crit_damage": "치명타 데미지",
+    "attribute.acau_hardcore.dodge_chance": "회피 확률"
+}

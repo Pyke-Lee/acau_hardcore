@@ -1,0 +1,124 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'maven-publish'
+	id "org.jetbrains.kotlin.jvm" version "2.3.0"
+	id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
+	id("org.jetbrains.compose") version "1.9.3"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral()
+	google()
+	maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+	maven { url 'https://jitpack.io' }
+	maven {
+		name = "Ladysnake Mods"
+		url = 'https://maven.ladysnake.org/releases'
+	}
+	flatDir { dirs 'libs' }
+	maven {
+		name = 'ParchmentMC'
+		url = 'https://maven.parchmentmc.org'
+	}
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.layered() {
+		officialMojangMappings()
+		parchment("org.parchmentmc.data:parchment-1.21.11:2025.12.20@zip")
+	}
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+
+	// Cardinal Components API
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-world:${project.cca_version}"
+
+	include "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+	include "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
+	include "org.ladysnake.cardinal-components-api:cardinal-components-world:${project.cca_version}"
+
+	// PykeLib
+	modImplementation "com.github.Pyke-Lee:PykeLib:${project.pyke_lib_version}"
+
+	// Composite
+	modImplementation "com.github.Pyke-Lee:composite:${project.composite_version}"
+
+	// Compose & Composite 라이브러리
+	implementation(compose.desktop.currentOs)
+	implementation(compose.material3)
+	implementation(compose.runtime)
+	implementation(compose.foundation)
+	implementation(compose.ui)
+	implementation(compose.materialIconsExtended)
+
+	// material-icons
+	implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+	include("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+
+	implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
+	include("org.jetbrains.compose.material:material-icons-core:1.7.3")
+
+	// Cheese Bridge
+	modImplementation name: "cheese-bridge-${project.cheese_bridge_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+tasks.withType(KotlinCompile).configureEach {
+	kotlinOptions {
+		jvmTarget = "21"
+		freeCompilerArgs += "-P=plugin:org.jetbrains.kotlin.plugin.compose:generateFunctionKeyMetaClasses=true"
+	}
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+	inputs.property "archivesName", project.base.archivesName
+
+	from("LICENSE") {
+		rename { "${it}_${inputs.properties.archivesName}"}
+	}
+}
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
+
+	repositories { }
+}

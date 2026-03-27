@@ -1,0 +1,48 @@
+{
+    "required": true,
+    "package": "kr.pyke.acau_hardcore.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "server.accessor.StructureTemplateAccessor",
+        "server.block.BasePressurePlateBlockMixin",
+        "server.block.FarmBlockMixin",
+        "server.enderdragon.DragonFireballMixin",
+        "server.enderdragon.EndDragonFightMixin",
+        "server.enderdragon.EnderDragonMixin",
+        "server.enderdragon.EnderDragonPhase2Mixin",
+        "server.enderdragon.EnderDragonPhaseManagerMixin",
+        "server.entity.EntityArgumentMixin",
+        "server.entity.EntityMixin",
+        "server.entity.EntitySelectorParserMixin",
+        "server.entity.LivingEntityMixin",
+        "server.entity.MobMixin",
+        "server.entity.NaturalSpawnerMixin",
+        "server.fluid.FlowingFluidMixin",
+        "server.level.ChunkMapMixin",
+        "server.level.ServerLevelMixin",
+        "server.loot.ApplyBonusCountMixin",
+        "server.loot.LootTableMixin",
+        "server.network.ServerGamePacketListenerImplMixin",
+        "server.player.PlayerMixin",
+        "server.player.ServerPlayerGameModeMixin",
+        "server.player.ServerPlayerMixin",
+        "server.portal.BaseFireBlockMixin",
+        "server.portal.EndPortalMixin",
+        "server.portal.NetherPortalBlockMixin",
+        "server.structure.StrongholdStructureMixin"
+    ],
+    "client": [
+        "client.editbox.AbstractTextAreaWidgetMixin",
+        "client.editbox.EditBoxMixin",
+        "client.editbox.MultiLineEditBoxMixin",
+        "client.gui.GuiGraphicsAccessor",
+        "client.gui.GuiMixin",
+        "client.player.MultiPlayerGameModeMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "overwrites": {
+        "requireAnnotations": true
+	}
+}

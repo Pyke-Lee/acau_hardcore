@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "acau_hardcore",
+	"version": "${version}",
+	"name": "AcauHardcore",
+	"description": "",
+	"authors": [ "Pyke__Lee" ],
+	"contact": { },
+	"license": "LGPL 3.0",
+	"icon": "assets/acau_hardcore/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [ "kr.pyke.acau_hardcore.AcauHardCore" ],
+		"client": [ "kr.pyke.acau_hardcore.client.AcauHardCoreClient" ],
+		"cardinal-components": [ "kr.pyke.acau_hardcore.registry.component.ModComponents" ]
+	},
+	"mixins": [
+		"acau_hardcore.mixins.json"
+	],
+	"custom": {
+		"cardinal-components": [
+			"acau_hardcore:hardcore_info",
+			"acau_hardcore:mailbox",
+			"acau_hardcore:housing_data"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}
