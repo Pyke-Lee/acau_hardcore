@@ -142,14 +142,11 @@ public class BossRaidSession {
         return false;
     }
 
-    public boolean checkWipe() {
-        if (state != STATE.IN_PROGRESS) { return false; }
+    public void checkWipe() {
+        if (state != STATE.IN_PROGRESS) { return; }
         if (isAllDead()) {
             state = STATE.FAILED;
-            return true;
         }
-
-        return false;
     }
 
     public void enterRaid(MinecraftServer server) {
@@ -203,8 +200,6 @@ public class BossRaidSession {
     }
 
     public void handleFail(MinecraftServer server) {
-        broadcastMessage(server, COLOR.RED.getColor(), "전멸! 레이드에 실패했습니다.");
-
         for (UUID id : participants) {
             ServerPlayer player = server.getPlayerList().getPlayer(id);
             if (player == null) { continue; }

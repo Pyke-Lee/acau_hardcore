@@ -1,5 +1,6 @@
 package kr.pyke.acau_hardcore;
 
+import kr.pyke.acau_hardcore.boss.raid.BossRaidManager;
 import kr.pyke.acau_hardcore.command.*;
 import kr.pyke.acau_hardcore.config.ModConfig;
 import kr.pyke.acau_hardcore.config.RuneConfig;
@@ -67,6 +68,8 @@ public class AcauHardCore implements ModInitializer {
 
 		BlockBreakQueue.register();
 		HousingBuildQueue.register();
+
+		BossRaidManager.register();
 	}
 
 	public static List<ServerPlayer> getOps(MinecraftServer server) {

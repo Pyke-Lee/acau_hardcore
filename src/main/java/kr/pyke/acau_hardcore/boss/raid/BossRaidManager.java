@@ -41,16 +41,14 @@ public class BossRaidManager {
         });
 
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, damageSource, amount) -> {
-            if (!(entity instanceof ServerPlayer player)) {
-                return true;
-            }
+            if (!(entity instanceof ServerPlayer player)) { return true; }
 
             BossRaidSession session = getSessionByPlayer(player.getUUID());
             if (session == null || session.getState() != BossRaidSession.STATE.IN_PROGRESS) { return true; }
             if (session.isPlayerDead(player.getUUID())) { return true; }
 
             session.onPlayerDeathCancelled(player);
-            if (session.checkWipe()) { handleWipe(player.level().getServer(), session); }
+            session.checkWipe();
 
             return false;
         });
@@ -75,6 +73,13 @@ public class BossRaidManager {
             Map.Entry<BOSS_RAID_TYPE, BossRaidSession> entry = iterator.next();
             BossRaidSession session = entry.getValue();
 
+            if (session.getState() == BossRaidSession.STATE.FAILED) {
+                handleWipe(server, session);
+                iterator.remove();
+                broadcastRaidStatus(server);
+                continue;
+            }
+
             boolean finished = session.tick(server);
             if (finished) {
                 if (session.getState() == BossRaidSession.STATE.COMPLETING) {
@@ -89,12 +94,9 @@ public class BossRaidManager {
     }
 
     private static void handleWipe(MinecraftServer server, BossRaidSession session) {
-        BOSS_RAID_TYPE raidType = session.getRaidType();
         List<UUID> participants = session.getParticipants();
 
         session.handleFail(server);
-        activeSessions.remove(raidType);
-        broadcastRaidStatus(server);
 
         for (UUID id : participants) {
             ServerPlayer player = server.getPlayerList().getPlayer(id);
@@ -270,6 +272,8 @@ public class BossRaidManager {
 
         BOSS_RAID_TYPE raidType = session.getRaidType();
         List<UUID> participants = session.getParticipants();
+        String forfeitPlayerName = player.getDisplayName().getString();
+
         session.handleFail(server);
         activeSessions.remove(raidType);
         broadcastRaidStatus(server);
@@ -277,17 +281,14 @@ public class BossRaidManager {
         for (UUID id : participants) {
             ServerPlayer member = server.getPlayerList().getPlayer(id);
             if (member != null) {
-                if (member.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
-                    member.setGameMode(GameType.SURVIVAL);
-                }
-                member.kill(member.level());
+                PykeLib.sendSystemMessage(member, COLOR.RED.getColor(), String.format("&7%s&r님이 레이드를 포기하여 실패 처리되었습니다.", forfeitPlayerName));
             }
         }
 
         for (UUID id : participants) {
             ServerPlayer member = server.getPlayerList().getPlayer(id);
             if (member != null) {
-                PykeLib.sendSystemMessage(member, COLOR.RED.getColor(), String.format("&7%s&r님이 레이드를 포기하여 실패 처리되었습니다.", player.getDisplayName().getString()));
+                member.kill(member.level());
             }
         }
     }
