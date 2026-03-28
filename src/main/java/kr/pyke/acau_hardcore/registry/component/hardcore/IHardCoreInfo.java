@@ -1,11 +1,7 @@
 package kr.pyke.acau_hardcore.registry.component.hardcore;
 
 import kr.pyke.acau_hardcore.type.HARDCORE_TYPE;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.ladysnake.cca.api.v3.component.ComponentV3;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
@@ -20,11 +16,11 @@ public interface IHardCoreInfo extends ComponentV3, AutoSyncedComponent {
     void setCurrentLiveTime(long tick);
     void setDeathCount(int count);
 
-    int addDeathCount();
+    void addDeathCount();
 
     boolean isStarted();
 
-    boolean setStarted(boolean started);
+    void setStarted(boolean started);
     void startHardCore(HARDCORE_TYPE hardcoreType);
     void stopHardCore();
 

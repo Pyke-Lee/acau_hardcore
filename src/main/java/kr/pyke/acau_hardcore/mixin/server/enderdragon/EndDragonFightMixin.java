@@ -1,6 +1,6 @@
 package kr.pyke.acau_hardcore.mixin.server.enderdragon;
 
-import kr.pyke.acau_hardcore.util.WaterTracker;
+import kr.pyke.acau_hardcore.util.Tracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
@@ -39,13 +39,11 @@ public abstract class EndDragonFightMixin {
     @Shadow private @Nullable DragonRespawnAnimation respawnStage;
     @Shadow private @Nullable BlockPos portalLocation;
 
+    @Shadow @Final private BlockPos origin;
+
     @Shadow protected abstract BlockPattern.@Nullable BlockPatternMatch findExitPortal();
     @Shadow protected abstract void spawnExitPortal(boolean active);
-    @Shadow protected abstract void respawnDragon(List<EndCrystal> crystals);
-
-    @Shadow
-    @Final
-    private BlockPos origin;
+    @Shadow public abstract void tryRespawn();
 
     @Redirect(
         method = "updatePlayers",
@@ -86,12 +84,10 @@ public abstract class EndDragonFightMixin {
                         boat.discard();
                     }
 
-                    for (BlockPos pos : WaterTracker.PLACED_WATER) {
-                        if (this.level.getBlockState(pos).is(Blocks.WATER)) {
-                            this.level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-                        }
+                    for (BlockPos pos : Tracker.PLACED_BLOCK) {
+                        this.level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                     }
-                    WaterTracker.PLACED_WATER.clear();
+                    Tracker.PLACED_BLOCK.clear();
                 }
 
                 this.dragonUUID = null;
@@ -115,6 +111,6 @@ public abstract class EndDragonFightMixin {
             }
         }
 
-        this.respawnDragon(new ArrayList<>());
+        this.tryRespawn();
     }
 }

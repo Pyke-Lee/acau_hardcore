@@ -44,6 +44,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import kotlin.math.ceil
+import kotlin.time.Duration.Companion.milliseconds
 
 object ShopScreen {
     private val ColorPanel = Color(0xFF1E232E)
@@ -91,7 +92,7 @@ object ShopScreen {
 
                 while (true) {
                     globalCurrency = ModComponents.HARDCORE_INFO.get(player).getCurrency()
-                    delay(50)
+                    delay(50.milliseconds)
                 }
             }
 
@@ -173,7 +174,7 @@ object ShopScreen {
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     Text(
-                                        text = "${String.format("%,d", globalCurrency)} Coin",
+                                        text = "${String.format("%,d", globalCurrency)} 원",
                                         color = ColorWaiting,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
@@ -447,7 +448,7 @@ object ShopScreen {
             )
 
             val priceStr = if (product.payment_type == "currency") {
-                if (isBuyTab) "${String.format("%,d", product.buy_price)} Coin" else "${String.format("%,d", product.sell_price)} Coin"
+                if (isBuyTab) "${String.format("%,d", product.buy_price)} 원" else "${String.format("%,d", product.sell_price)} 원"
             }
             else {
                 if (isBuyTab) "${String.format("%,d", product.barter_buy_amount)} $barterItemName" else "${String.format("%,d", product.barter_sell_amount)} $barterItemName"
@@ -505,7 +506,7 @@ object ShopScreen {
                     val barterItem = BuiltInRegistries.ITEM.getValue(Identifier.parse(product.barter_buy_item!!))
                     barterBuyCount = ShopClientValidation.countItem(player, barterItem, DataComponentPatch.EMPTY, false)
                 }
-                delay(50)
+                delay(50.milliseconds)
             }
         }
 
@@ -541,7 +542,7 @@ object ShopScreen {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(text = "구매가:", color = ColorTextSub, fontSize = 13.sp)
                         if (product.payment_type == "currency") {
-                            Text(text = "${String.format("%,d", product.buy_price)} Coin", color = ColorWaiting, fontSize = 13.sp)
+                            Text(text = "${String.format("%,d", product.buy_price)} 원", color = ColorWaiting, fontSize = 13.sp)
                         }
                         else {
                             Text(text = "${String.format("%,d", product.barter_buy_amount)} $barterBuyName", color = ColorWaiting, fontSize = 13.sp)
@@ -553,7 +554,7 @@ object ShopScreen {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(text = "판매가:", color = ColorTextSub, fontSize = 13.sp)
                         if (product.payment_type == "currency") {
-                            Text(text = "${String.format("%,d", product.sell_price)} Coin", color = ColorProcessing, fontSize = 13.sp)
+                            Text(text = "${String.format("%,d", product.sell_price)} 원", color = ColorProcessing, fontSize = 13.sp)
                         }
                         else {
                             Text(text = "${String.format("%,d", product.barter_sell_amount)} $barterSellName", color = ColorProcessing, fontSize = 13.sp)
@@ -611,7 +612,7 @@ object ShopScreen {
                 Text(text = "합계:", color = ColorTextMain, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 if (product.payment_type == "currency") {
                     val total = if (isBuyTab) product.buy_price.toLong() * quantity else product.sell_price.toLong() * quantity
-                    Text(text = "${String.format("%,d", total)} Coin", color = ColorWaiting, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "${String.format("%,d", total)} 원", color = ColorWaiting, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
                 else {
                     val total = if (isBuyTab) product.barter_buy_amount.toLong() * quantity else product.barter_sell_amount.toLong() * quantity

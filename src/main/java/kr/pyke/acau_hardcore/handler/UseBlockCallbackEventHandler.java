@@ -1,43 +1,54 @@
 package kr.pyke.acau_hardcore.handler;
 
 import kr.pyke.acau_hardcore.registry.dimension.ModDimensions;
-import kr.pyke.acau_hardcore.util.WaterTracker;
+import kr.pyke.acau_hardcore.util.Tracker;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 
 public class UseBlockCallbackEventHandler {
     private UseBlockCallbackEventHandler() { }
 
     public static void register() {
         UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
-           if (level.dimension().equals(Level.END) || level.dimension().equals(ModDimensions.EXPERT_END)) {
-               ItemStack heldItem = player.getItemInHand(hand);
-               if (heldItem.is(ItemTags.BEDS)) {
-                   return InteractionResult.FAIL;
-               }
+            if (level.isClientSide()) { return InteractionResult.PASS; }
 
-               if (heldItem.is(Items.WATER_BUCKET)) {
-                   BlockPos targetPos = hitResult.getBlockPos().relative(hitResult.getDirection());
-                   if (level.getBlockState(hitResult.getBlockPos()).canBeReplaced()) {
-                       targetPos = hitResult.getBlockPos();
-                   }
-                   WaterTracker.PLACED_WATER.add(targetPos);
-               }
+            if (level.dimension().equals(Level.END) || level.dimension().equals(ModDimensions.EXPERT_END)) {
+                ItemStack heldItem = player.getItemInHand(hand);
+                BlockPos hitPos = hitResult.getBlockPos();
+                BlockState hitState = level.getBlockState(hitPos);
 
-               if (heldItem.is(Items.BUCKET)) {
-                   BlockPos hitPos = hitResult.getBlockPos();
-                   BlockPos relativePos = hitResult.getBlockPos().relative(hitResult.getDirection());
-                   WaterTracker.PLACED_WATER.remove(hitPos);
-                   WaterTracker.PLACED_WATER.remove(relativePos);
-               }
-           }
+                if (heldItem.is(ItemTags.BEDS)) {
+                    if (player.isShiftKeyDown() || !hitState.hasBlockEntity()) {
+                        return InteractionResult.FAIL;
+                    }
+                }
 
-           return InteractionResult.PASS;
+                if (heldItem.getItem() instanceof BlockItem) {
+                    BlockPos targetPos = hitPos.relative(hitResult.getDirection());
+                    if (hitState.canBeReplaced()) {
+                        targetPos = hitPos;
+                    }
+                    Tracker.PLACED_BLOCK.add(targetPos);
+                }
+
+                if (heldItem.is(Items.BUCKET)) {
+                    if (hitState.getFluidState().is(Fluids.WATER)) {
+                        BlockPos relativePos = hitPos.relative(hitResult.getDirection());
+                        Tracker.PLACED_BLOCK.remove(hitPos);
+                        Tracker.PLACED_BLOCK.remove(relativePos);
+                    }
+                }
+            }
+
+            return InteractionResult.PASS;
         });
     }
 }

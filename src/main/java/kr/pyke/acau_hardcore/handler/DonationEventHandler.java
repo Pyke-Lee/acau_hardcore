@@ -48,7 +48,7 @@ public class DonationEventHandler {
             switch(krwAmount) {
                 //   5천원 : 생존 키트 | 개인
                 case 5000 -> {
-                    MailBoxData mail = MailBoxData.create(mailTitle, sender, message, List.of(createRandomBox("common_survival_kit", 0, "§6생존 키트", 1)));
+                    MailBoxData mail = MailBoxData.create(mailTitle, sender, message, List.of(createRandomBox("normal_survival_kit", 0, "§6생존 키트", 1)));
 
                     ModComponents.MAIL_BOX.get(player).addMail(mail);
                     sendPersonalMessage(player, notification);
@@ -91,15 +91,15 @@ public class DonationEventHandler {
                     ModComponents.MAIL_BOX.get(player).addMail(mail);
                     sendPersonalMessage(player, notification);
                 }
-                //  10만원 : 감옥 보내기 | 전체
+                //   10만원 : 감옥 보내기 | 전체
                 case 100000 -> {
                     ModComponents.HARDCORE_INFO.get(player).enterJail();
                     sendServerMessage(player, String.format("&7%s&r님께서 %s를 받아 감옥에 수감되었습니다.", player.getDisplayName().getString(), platform.equals("SOOP") ? String.format("&e별풍선 %,d개&r", amount) : String.format("&e%,d 치즈&r", krwAmount)));
                 }
-                //  30만원 : 랜덤 플레이어에게 이동 | 개인, 대상
+                //   30만원 : 랜덤 플레이어에게 이동 | 개인, 대상
                 case 300000 -> ModComponents.HARDCORE_INFO.get(player).randomTargetTeleport();
-                // 100만원 : 스카이다이빙(Y 500으로 이동) | 공지
-                case 1000000 -> ModComponents.HARDCORE_INFO.get(player).addTimerTaskMessage(10, "잠시 후 Y 500으로 이동됩니다.", () -> {
+                //   50만원 : 스카이다이빙(Y 500으로 이동) | 공지
+                case 500000 -> ModComponents.HARDCORE_INFO.get(player).addTimerTaskMessage(10, "잠시 후 Y 500으로 이동됩니다.", () -> {
                     Vec3 pos = player.position();
                     player.teleportTo(pos.x, 500d, pos.z);
                     player.playSound(SoundEvents.ENDER_DRAGON_GROWL, 0.5f, 1.f);

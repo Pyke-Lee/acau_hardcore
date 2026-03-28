@@ -23,7 +23,23 @@ public class MultiPlayerGameModeMixin {
     @Final @Shadow private Minecraft minecraft;
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
-    private void onUseItemOn(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
+    private void onUseItemOn(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        BlockPos blockPos = hitResult.getBlockPos();
+        IHousingData housingData = ModComponents.HOUSING_DATA.get(player.level());
+        for (HousingZone zone : housingData.getHousingZones()) {
+            if (zone.isInsideZone(blockPos)) {
+                if (zone.getOwnerID() != null && !zone.getOwnerID().equals(player.getUUID())) {
+                    if (!player.isCreative()) {
+                        cir.setReturnValue(InteractionResult.PASS);
+                    }
+                    return;
+                }
+                else if (zone.getOwnerID().equals(player.getUUID())) {
+                    return;
+                }
+            }
+        }
+
         if (player.level().dimension() == Level.OVERWORLD && !player.isCreative()) {
             cir.setReturnValue(InteractionResult.PASS);
         }
