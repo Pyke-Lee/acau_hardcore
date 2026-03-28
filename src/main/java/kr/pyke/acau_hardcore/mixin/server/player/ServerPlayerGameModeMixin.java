@@ -34,11 +34,9 @@ public class ServerPlayerGameModeMixin {
                     if (!player.isCreative()) {
                         cir.setReturnValue(InteractionResult.PASS);
                     }
-                    return;
                 }
-                else if (zone.getOwnerID().equals(this.player.getUUID())) {
-                    return;
-                }
+
+                return;
             }
         }
 
@@ -56,8 +54,9 @@ public class ServerPlayerGameModeMixin {
                     if (!player.isCreative()) {
                         cir.setReturnValue(InteractionResult.PASS);
                     }
-                    return;
                 }
+
+                return;
             }
         }
 

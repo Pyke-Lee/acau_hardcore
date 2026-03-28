@@ -81,13 +81,6 @@ public class BossRaidSession {
 
     public boolean isAllReady() { return readyStatus.values().stream().allMatch(Boolean::booleanValue); }
 
-    public void onPlayerDeathCancelled(ServerPlayer player) {
-        deadPlayers.add(player.getUUID());
-        player.setHealth(player.getMaxHealth());
-        player.setGameMode(GameType.SPECTATOR);
-        PykeLib.sendSystemMessage(player, COLOR.GRAY.getColor(), "사망하여 관전 모드로 전환되었습니다.");
-    }
-
     public boolean isAllDead() { return deadPlayers.containsAll(participants); }
 
     public void onDragonKilled(MinecraftServer server) {
@@ -142,11 +135,8 @@ public class BossRaidSession {
         return false;
     }
 
-    public void checkWipe() {
-        if (state != STATE.IN_PROGRESS) { return; }
-        if (isAllDead()) {
-            state = STATE.FAILED;
-        }
+    public void addDeadPlayer(UUID playerID) {
+        deadPlayers.add(playerID);
     }
 
     public void enterRaid(MinecraftServer server) {

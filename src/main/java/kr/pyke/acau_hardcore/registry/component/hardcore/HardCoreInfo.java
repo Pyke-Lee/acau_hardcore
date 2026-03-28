@@ -62,6 +62,7 @@ public class HardCoreInfo implements IHardCoreInfo {
     private final Map<Integer, ItemStack> savedItems = new LinkedHashMap<>();
 
     private final List<TimerTask> timerTasks = new ArrayList<>();
+    private final List<TimerTask> pendingTimerTasks = new ArrayList<>();
 
     public HardCoreInfo(Player player) {
         this.player = player;
@@ -186,7 +187,6 @@ public class HardCoreInfo implements IHardCoreInfo {
     @Override public void addDeathCount() {
         deathCount++;
         ModComponents.HARDCORE_INFO.sync(player);
-
     }
 
     @Override public boolean isStarted() { return isStarted; }
@@ -283,16 +283,23 @@ public class HardCoreInfo implements IHardCoreInfo {
             }
         }
 
-        Iterator<TimerTask> iterator = this.timerTasks.iterator();
-        while (iterator.hasNext()) {
-            TimerTask task = iterator.next();
+        if (!this.pendingTimerTasks.isEmpty()) {
+            this.timerTasks.addAll(this.pendingTimerTasks);
+            this.pendingTimerTasks.clear();
+        }
+
+        List<TimerTask> completedTasks = null;
+        for (TimerTask task : this.timerTasks) {
             task.remainingTicks--;
 
             if (task.remainingTicks <= 0) {
                 if (task.runnable != null) {
                     task.runnable.run();
                 }
-                iterator.remove();
+                if (completedTasks == null) {
+                    completedTasks = new ArrayList<>();
+                }
+                completedTasks.add(task);
             }
             else if (task.remainingTicks % 20 == 0) {
                 if (task.message != null && this.player instanceof ServerPlayer serverPlayer) {
@@ -302,6 +309,9 @@ public class HardCoreInfo implements IHardCoreInfo {
                     serverPlayer.connection.send(new ClientboundSoundPacket(SoundEvents.NOTE_BLOCK_PLING, SoundSource.PLAYERS, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 0.5f, 1.f, serverPlayer.getRandom().nextLong()));
                 }
             }
+        }
+        if (completedTasks != null) {
+            this.timerTasks.removeAll(completedTasks);
         }
     }
 
@@ -459,17 +469,17 @@ public class HardCoreInfo implements IHardCoreInfo {
 
     @Override
     public void addTimerTask(int seconds, Runnable runnable) {
-        this.timerTasks.add(new TimerTask(seconds * 20, null, runnable));
+        this.pendingTimerTasks.add(new TimerTask(seconds * 20, null, runnable));
     }
 
     @Override
     public void addTimerTaskMessage(int seconds, String message, Runnable runnable) {
-        this.timerTasks.add(new TimerTask(seconds * 20, message, runnable));
+        this.pendingTimerTasks.add(new TimerTask(seconds * 20, message, runnable));
     }
 
     @Override
     public void addTimerMessage(int seconds, String message) {
-        this.timerTasks.add(new TimerTask(seconds * 20, message, null));
+        this.pendingTimerTasks.add(new TimerTask(seconds * 20, message, null));
     }
 
     @Override
@@ -485,11 +495,20 @@ public class HardCoreInfo implements IHardCoreInfo {
 
         ModComponents.HARDCORE_INFO.get(targetPlayer).addTimerMessage(10, "잠시 후 §7???§r님이 이동됩니다.");
 
-        addTimerTaskMessage(10, "잠시 후 §7%s§r님에게 이동합니다.", () -> {
-            setPrevPosition();
-            TeleportTransition transition = new TeleportTransition(targetPlayer.level(), targetPlayer.position(), Vec3.ZERO, targetPlayer.getYRot(), targetPlayer.getXRot(), TeleportTransition.DO_NOTHING);
-            player.teleport(transition);
+        UUID targetUUID = targetPlayer.getUUID();
 
+        addTimerTaskMessage(10, "잠시 후 §7%s§r님에게 이동합니다.", () -> {
+            MinecraftServer srv = player.level().getServer();
+            ServerPlayer target = srv.getPlayerList().getPlayer(targetUUID);
+            if (target == null) {
+                if (player instanceof ServerPlayer sp) {
+                    PykeLib.sendSystemMessage(sp, COLOR.RED.getColor(), "대상 플레이어가 오프라인입니다.");
+                }
+                return;
+            }
+            setPrevPosition();
+            TeleportTransition transition = new TeleportTransition(target.level(), target.position(), Vec3.ZERO, target.getYRot(), target.getXRot(), TeleportTransition.DO_NOTHING);
+            player.teleport(transition);
             addTimerTask(30, this::teleportPrevPosition);
         });
     }

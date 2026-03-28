@@ -8,7 +8,6 @@ import kr.pyke.util.constants.COLOR;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -27,7 +26,9 @@ public class PartyManager extends SavedData {
 
     private final Map<UUID, Party> parties = new HashMap<>();
     private final Map<UUID, UUID> playerPartyMap = new HashMap<>();
-    private final Map<UUID, UUID> pendingInvites = new HashMap<>();
+    private final Map<UUID, InviteData> pendingInvites = new HashMap<>();
+
+    private record InviteData(UUID partyID, long expireTick) { }
 
     public static final Codec<PartyManager> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Party.CODEC.listOf().optionalFieldOf("parties", List.of())
@@ -67,11 +68,13 @@ public class PartyManager extends SavedData {
     }
 
     public boolean hasPendingInvite(UUID playerID) {
-        return pendingInvites.containsKey(playerID);
+        InviteData data = pendingInvites.get(playerID);
+        return data != null;
     }
 
     public UUID getPendingInvitePartyID(UUID playerID) {
-        return pendingInvites.get(playerID);
+        InviteData data = pendingInvites.get(playerID);
+        return data != null ? data.partyID() : null;
     }
 
     public Party createParty(MinecraftServer server, ServerPlayer leader, String partyName) {
@@ -89,78 +92,66 @@ public class PartyManager extends SavedData {
         return party;
     }
 
-    public boolean invitePlayer(MinecraftServer server, ServerPlayer inviter, ServerPlayer target) {
+    public void invitePlayer(MinecraftServer server, ServerPlayer inviter, ServerPlayer target) {
         Party party = getPartyByPlayer(inviter.getUUID());
-        if (party == null || !party.isLeader(inviter.getUUID())) { return false; }
+        if (party == null || !party.isLeader(inviter.getUUID())) { return; }
         if (party.isFull()) {
             PykeLib.sendSystemMessage(inviter, COLOR.RED.getColor(), String.format("파티가 가득 찼습니다. (최대 %s명)", Party.MAX_MEMBERS));
-            return false;
+            return;
         }
 
         if (isInParty(target.getUUID())) {
             PykeLib.sendSystemMessage(inviter, COLOR.RED.getColor(), "해당 플레이어는 이미 파티에 소속되어 있습니다.");
-            return false;
+            return;
         }
 
         if (pendingInvites.containsKey(target.getUUID())) {
             PykeLib.sendSystemMessage(inviter, COLOR.RED.getColor(), "해당 플레이어에게 이미 파티 초대가 발송되어 있습니다.");
-            return false;
+            return;
         }
 
-        pendingInvites.put(target.getUUID(), party.getPartyID());
+        long expireTick = server.getTickCount() + 600;
+        pendingInvites.put(target.getUUID(), new InviteData(party.getPartyID(), expireTick));
+
         PykeLib.sendSystemMessage(inviter, COLOR.LIME.getColor(), String.format("&7%s&r님에게 파티 초대를 보냈습니다.", target.getDisplayName().getString()));
         PykeLib.sendSystemMessage(target, COLOR.AQUA.getColor(), String.format("&7%s&r님이 파티에 초대했습니다. &a/파티 수락&f 또는 &c/파티 거절", inviter.getDisplayName().getString()));
 
-        UUID targetUUID = target.getUUID();
-        UUID partyID = party.getPartyID();
-        server.execute(() -> server.execute(new TickTask(server.getTickCount() + 600, () -> {
-            if (pendingInvites.containsKey(targetUUID) && partyID.equals(pendingInvites.get(targetUUID))) {
-                pendingInvites.remove(targetUUID);
-                ServerPlayer onlineTarget = server.getPlayerList().getPlayer(targetUUID);
-                if (onlineTarget != null) {
-                    PykeLib.sendSystemMessage(onlineTarget, COLOR.GRAY.getColor(), "파티 초대가 만료되었습니다.");
-                }
-            }
-        })));
-
         setDirty();
-        return true;
     }
 
-    public boolean acceptInvite(MinecraftServer server, ServerPlayer player) {
-        UUID partyID = pendingInvites.remove(player.getUUID());
-        if (partyID == null) { return false; }
+    public void acceptInvite(MinecraftServer server, ServerPlayer player) {
+        InviteData data = pendingInvites.remove(player.getUUID());
+        if (data == null) { return; }
 
-        Party party = parties.get(partyID);
+        Party party = parties.get(data.partyID());
         if (party == null) {
             PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "해당 파티가 더 이상 존재하지 않습니다.");
-            return false;
+            return;
         }
         if (party.isFull()) {
             PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "파티가 가득 찼습니다.");
-            return false;
+            return;
         }
         if (isInParty(player.getUUID())) {
             PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "이미 파티에 소속되어 있습니다.");
-            return false;
+            return;
         }
 
         party.addMember(player.getUUID());
-        playerPartyMap.put(player.getUUID(), partyID);
+        playerPartyMap.put(player.getUUID(), data.partyID);
         addPlayerToTeam(server, party, player);
 
         notifyPartyMembers(server, party, COLOR.LIME.getColor(), String.format("&7%s&r님이 파티에 참가했습니다.", player.getDisplayName().getString()));
 
         setDirty();
         syncPartyToMembers(server, party);
-        return true;
     }
 
-    public boolean rejectInvite(MinecraftServer server, ServerPlayer player) {
-        UUID partyID = pendingInvites.remove(player.getUUID());
-        if (partyID == null) { return false; }
+    public void rejectInvite(MinecraftServer server, ServerPlayer player) {
+        InviteData data = pendingInvites.remove(player.getUUID());
+        if (data == null) { return; }
 
-        Party party = parties.get(partyID);
+        Party party = parties.get(data.partyID());
         if (party != null) {
             ServerPlayer leader = server.getPlayerList().getPlayer(party.getLeaderID());
             if (leader != null) {
@@ -169,21 +160,20 @@ public class PartyManager extends SavedData {
         }
 
         PykeLib.sendSystemMessage(player, COLOR.GRAY.getColor(), "파티 초대를 거절했습니다.");
-        return true;
     }
 
-    public boolean leaveParty(MinecraftServer server, ServerPlayer player) {
+    public void leaveParty(MinecraftServer server, ServerPlayer player) {
         Party party = getPartyByPlayer(player.getUUID());
-        if (party == null) { return false; }
+        if (party == null) { return; }
 
         if (party.isLeader(player.getUUID())) {
             if (party.getMemberCount() > 1) {
                 PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "파티장은 탈퇴할 수 없습니다. &e/파티 위임&f 또는 &e/파티 해산&f을 사용하세요.");
-                return false;
             }
             else {
-                return disbandParty(server, player);
+                disbandParty(server, player);
             }
+            return;
         }
 
         party.removeMember(player.getUUID());
@@ -196,19 +186,18 @@ public class PartyManager extends SavedData {
         setDirty();
         syncPartyToMembers(server, party);
         syncEmptyParty(player);
-        return true;
     }
 
-    public boolean kickMember(MinecraftServer server, ServerPlayer leader, ServerPlayer target) {
+    public void kickMember(MinecraftServer server, ServerPlayer leader, ServerPlayer target) {
         Party party = getPartyByPlayer(leader.getUUID());
-        if (party == null || !party.isLeader(leader.getUUID())) { return false; }
+        if (party == null || !party.isLeader(leader.getUUID())) { return; }
         if (!party.isMember(target.getUUID())) {
             PykeLib.sendSystemMessage(leader, COLOR.RED.getColor(), "해당 플레이어는 파티원이 아닙니다.");
-            return false;
+            return;
         }
         if (party.isLeader(target.getUUID())) {
             PykeLib.sendSystemMessage(leader, COLOR.RED.getColor(), "자기 자신을 추방할 수 없습니다.");
-            return false;
+            return;
         }
 
         party.removeMember(target.getUUID());
@@ -221,12 +210,11 @@ public class PartyManager extends SavedData {
         setDirty();
         syncPartyToMembers(server, party);
         syncEmptyParty(target);
-        return true;
     }
 
-    public boolean disbandParty(MinecraftServer server, ServerPlayer leader) {
+    public void disbandParty(MinecraftServer server, ServerPlayer leader) {
         Party party = getPartyByPlayer(leader.getUUID());
-        if (party == null || !party.isLeader(leader.getUUID())) { return false; }
+        if (party == null || !party.isLeader(leader.getUUID())) { return; }
 
         List<UUID> membersCopy = new ArrayList<>(party.getMembers());
         for (UUID memberId : membersCopy) {
@@ -248,21 +236,20 @@ public class PartyManager extends SavedData {
         }
 
         setDirty();
-        return true;
     }
 
-    public boolean transferLeader(MinecraftServer server, ServerPlayer leader, ServerPlayer target) {
+    public void transferLeader(MinecraftServer server, ServerPlayer leader, ServerPlayer target) {
         Party party = getPartyByPlayer(leader.getUUID());
         if (party == null || !party.isLeader(leader.getUUID())) {
-            return false;
+            return;
         }
         if (!party.isMember(target.getUUID())) {
             PykeLib.sendSystemMessage(leader, COLOR.RED.getColor(), "해당 플레이어는 파티원이 아닙니다.");
-            return false;
+            return;
         }
         if (party.isLeader(target.getUUID())) {
             PykeLib.sendSystemMessage(leader, COLOR.RED.getColor(), "이미 파티장입니다.");
-            return false;
+            return;
         }
 
         party.setLeaderID(target.getUUID());
@@ -270,7 +257,6 @@ public class PartyManager extends SavedData {
 
         setDirty();
         syncPartyToMembers(server, party);
-        return true;
     }
 
     public void teleportParty(MinecraftServer server, UUID partyID, ServerLevel targetLevel, Vec3 pos, float yaw, float pitch) {
@@ -423,6 +409,20 @@ public class PartyManager extends SavedData {
             ServerPlayer member = server.getPlayerList().getPlayer(memberId);
             if (member != null) {
                 PykeLib.sendSystemMessage(member, color, message);
+            }
+        }
+    }
+
+    public void tickInvites(MinecraftServer server) {
+        Iterator<Map.Entry<UUID, InviteData>> it = pendingInvites.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, InviteData> entry = it.next();
+            if (server.getTickCount() >= entry.getValue().expireTick()) {
+                it.remove();
+                ServerPlayer target = server.getPlayerList().getPlayer(entry.getKey());
+                if (target != null) {
+                    PykeLib.sendSystemMessage(target, COLOR.GRAY.getColor(), "파티 초대가 만료되었습니다.");
+                }
             }
         }
     }

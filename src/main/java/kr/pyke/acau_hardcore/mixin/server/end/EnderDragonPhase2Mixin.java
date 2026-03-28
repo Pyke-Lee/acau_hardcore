@@ -1,7 +1,10 @@
-package kr.pyke.acau_hardcore.mixin.server.enderdragon;
+package kr.pyke.acau_hardcore.mixin.server.end;
 
+import kr.pyke.PykeLib;
 import kr.pyke.acau_hardcore.boss.enderdragon.phase.ModEnderDragonPhases;
+import kr.pyke.util.constants.COLOR;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
@@ -56,6 +59,12 @@ public class EnderDragonPhase2Mixin {
                     crystal.setShowBottom(false);
                     level.addFreshEntity(crystal);
                 }
+            }
+        }
+
+        for (ServerPlayer player : level.players()) {
+            if (!player.isSpectator()) {
+                PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "엔드 크리스탈이 재생성되었습니다!");
             }
         }
     }

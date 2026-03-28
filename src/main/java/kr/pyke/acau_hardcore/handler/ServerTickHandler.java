@@ -16,7 +16,9 @@ public class ServerTickHandler {
             tickCounter++;
             if (tickCounter >= 10) {
                 tickCounter = 0;
-                PartyManager.getServerState(server).tickHealthSync(server);
+                PartyManager partyManager = PartyManager.getServerState(server);
+                partyManager.tickHealthSync(server);
+                partyManager.tickInvites(server);
             }
         });
     }

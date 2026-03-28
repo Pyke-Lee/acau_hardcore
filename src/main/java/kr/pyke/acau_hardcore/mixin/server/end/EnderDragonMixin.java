@@ -1,4 +1,4 @@
-package kr.pyke.acau_hardcore.mixin.server.enderdragon;
+package kr.pyke.acau_hardcore.mixin.server.end;
 
 import kr.pyke.acau_hardcore.config.ModConfig;
 import kr.pyke.acau_hardcore.registry.dimension.ModDimensions;

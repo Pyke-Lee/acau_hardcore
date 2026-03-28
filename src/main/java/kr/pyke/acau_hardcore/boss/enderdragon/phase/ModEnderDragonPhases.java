@@ -13,12 +13,23 @@ public class ModEnderDragonPhases {
     @SuppressWarnings("unchecked")
     private static <T extends DragonPhaseInstance> EnderDragonPhase<T> register(Class<T> phaseClass, String name) {
         try {
-            Field phasesField = EnderDragonPhase.class.getDeclaredField("phases");
+            Field phasesField = null;
+            for (Field f : EnderDragonPhase.class.getDeclaredFields()) {
+                if (f.getType() == EnderDragonPhase[].class) {
+                    phasesField = f;
+                    break;
+                }
+            }
+            if (phasesField == null) {
+                throw new RuntimeException("Could not find phases array field in EnderDragonPhase");
+            }
             phasesField.setAccessible(true);
+
             EnderDragonPhase<?>[] oldPhases = (EnderDragonPhase<?>[]) phasesField.get(null);
 
             int newId = oldPhases.length;
-            Constructor<EnderDragonPhase<T>> constructor = (Constructor<EnderDragonPhase<T>>) (Constructor<?>) EnderDragonPhase.class.getDeclaredConstructor(int.class, Class.class, String.class);
+            Constructor<EnderDragonPhase<T>> constructor = (Constructor<EnderDragonPhase<T>>) (Constructor<?>)
+                EnderDragonPhase.class.getDeclaredConstructor(int.class, Class.class, String.class);
             constructor.setAccessible(true);
 
             EnderDragonPhase<T> newPhase = constructor.newInstance(newId, phaseClass, name);

@@ -34,6 +34,7 @@ public class HousingRenderer {
             .sortOnUpload()
             .createRenderSetup()
     );
+    private static boolean boundaryVisible = true;
 
     public static void register() {
         WorldRenderEvents.BEFORE_TRANSLUCENT.register(context -> {
@@ -53,6 +54,8 @@ public class HousingRenderer {
     }
 
     private static void renderHousingZones(WorldRenderContext context) {
+        if (!boundaryVisible) { return; }
+
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) { return; }
 
@@ -153,4 +156,8 @@ public class HousingRenderer {
             .setLight(light)
             .setNormal(0.f, 1.f, 0.f);
     }
+
+    public static void toggleBoundary() { boundaryVisible = !boundaryVisible; }
+
+    public static boolean isBoundaryVisible() { return boundaryVisible; }
 }

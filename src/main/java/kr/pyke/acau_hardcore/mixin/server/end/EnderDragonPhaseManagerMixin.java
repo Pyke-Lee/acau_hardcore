@@ -1,6 +1,5 @@
-package kr.pyke.acau_hardcore.mixin.server.enderdragon;
+package kr.pyke.acau_hardcore.mixin.server.end;
 
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.enderdragon.phases.DragonPhaseInstance;
 import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhaseManager;

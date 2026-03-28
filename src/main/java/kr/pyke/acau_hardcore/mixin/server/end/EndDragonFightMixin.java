@@ -1,4 +1,4 @@
-package kr.pyke.acau_hardcore.mixin.server.enderdragon;
+package kr.pyke.acau_hardcore.mixin.server.end;
 
 import kr.pyke.acau_hardcore.util.Tracker;
 import net.minecraft.core.BlockPos;

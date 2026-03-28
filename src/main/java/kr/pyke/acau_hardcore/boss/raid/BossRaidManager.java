@@ -47,9 +47,42 @@ public class BossRaidManager {
             if (session == null || session.getState() != BossRaidSession.STATE.IN_PROGRESS) { return true; }
             if (session.isPlayerDead(player.getUUID())) { return true; }
 
-            session.onPlayerDeathCancelled(player);
-            session.checkWipe();
+            session.addDeadPlayer(player.getUUID());
 
+            if (session.isAllDead()) {
+                MinecraftServer server = player.level().getServer();
+                BOSS_RAID_TYPE raidType = session.getRaidType();
+
+                for (UUID id : session.getParticipants()) {
+                    if (id.equals(player.getUUID())) { continue; }
+
+                    ServerPlayer member = server.getPlayerList().getPlayer(id);
+                    if (member != null) {
+                        ModComponents.HARDCORE_INFO.get(member).teleportPrevPosition();
+                        member.setGameMode(GameType.SURVIVAL);
+                    }
+                }
+
+                ModComponents.HARDCORE_INFO.get(player).teleportPrevPosition();
+
+                activeSessions.remove(raidType);
+                broadcastRaidStatus(server);
+
+                for (UUID id : session.getParticipants()) {
+                    if (id.equals(player.getUUID())) { continue; }
+
+                    ServerPlayer member = server.getPlayerList().getPlayer(id);
+                    if (member != null) {
+                        member.kill(member.level());
+                    }
+                }
+
+                return true;
+            }
+
+            player.setHealth(player.getMaxHealth());
+            player.setGameMode(GameType.SPECTATOR);
+            PykeLib.sendSystemMessage(player, COLOR.GRAY.getColor(), "사망하여 관전 모드로 전환되었습니다.");
             return false;
         });
 
@@ -73,13 +106,6 @@ public class BossRaidManager {
             Map.Entry<BOSS_RAID_TYPE, BossRaidSession> entry = iterator.next();
             BossRaidSession session = entry.getValue();
 
-            if (session.getState() == BossRaidSession.STATE.FAILED) {
-                handleWipe(server, session);
-                iterator.remove();
-                broadcastRaidStatus(server);
-                continue;
-            }
-
             boolean finished = session.tick(server);
             if (finished) {
                 if (session.getState() == BossRaidSession.STATE.COMPLETING) {
@@ -89,19 +115,6 @@ public class BossRaidManager {
                 }
                 iterator.remove();
                 broadcastRaidStatus(server);
-            }
-        }
-    }
-
-    private static void handleWipe(MinecraftServer server, BossRaidSession session) {
-        List<UUID> participants = session.getParticipants();
-
-        session.handleFail(server);
-
-        for (UUID id : participants) {
-            ServerPlayer player = server.getPlayerList().getPlayer(id);
-            if (player != null) {
-                player.kill(player.level());
             }
         }
     }

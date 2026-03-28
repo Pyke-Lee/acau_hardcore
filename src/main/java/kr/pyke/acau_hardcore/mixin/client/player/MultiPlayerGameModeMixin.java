@@ -32,11 +32,9 @@ public class MultiPlayerGameModeMixin {
                     if (!player.isCreative()) {
                         cir.setReturnValue(InteractionResult.PASS);
                     }
-                    return;
                 }
-                else if (zone.getOwnerID().equals(player.getUUID())) {
-                    return;
-                }
+
+                return;
             }
         }
 
@@ -56,8 +54,9 @@ public class MultiPlayerGameModeMixin {
                     if (!minecraft.player.isCreative()) {
                         cir.setReturnValue(false);
                     }
-                    return;
                 }
+
+                return;
             }
         }
 

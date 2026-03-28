@@ -42,6 +42,7 @@
     "key.category.acau_hardcore.general": "하드코어",
     "key.mailbox.open": "메일함 열기",
     "key.help_request.open": "도움 요청 목록 열기(관리자 전용)",
+    "key.housing_boundary.toggle": "거주 구역 경계선 ON/OFF",
 
     "attribute.acau_hardcore.life_steal": "생명력 흡수",
     "attribute.acau_hardcore.crit_chance": "치명타 확률",

@@ -37,14 +37,17 @@ public class AcauHardCoreCache {
         for (HelpRequest request : requests) {
             helpRequests.put(request.requestId(), request);
         }
+        notifyHelpListeners();
     }
 
     public static void update(HelpRequest request) {
         helpRequests.put(request.requestId(), request);
+        notifyHelpListeners();
     }
 
     public static void remove(UUID requestId) {
         helpRequests.remove(requestId);
+        notifyHelpListeners();
     }
 
     public static List<HelpRequest> getAll() {

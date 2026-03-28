@@ -102,7 +102,7 @@ public class PartyCommand {
             PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "자기 자신을 초대할 수 없습니다.");
             return 0;
         }
-        if (ModComponents.HARDCORE_INFO.get(target).getHardcoreType() == ModComponents.HARDCORE_INFO.get(player).getHardcoreType()) {
+        if (ModComponents.HARDCORE_INFO.get(target).getHardcoreType() != ModComponents.HARDCORE_INFO.get(player).getHardcoreType()) {
             PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "하드코어 유형이 같은 플레이어만 파티가 가능합니다.");
             return 0;
         }
