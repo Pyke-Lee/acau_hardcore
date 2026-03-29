@@ -89,7 +89,7 @@ public class EndIslandChunkGenerator extends ChunkGenerator {
 
     @Override
     public int getGenDepth() {
-        return 0;
+        return 256;
     }
 
     @Override

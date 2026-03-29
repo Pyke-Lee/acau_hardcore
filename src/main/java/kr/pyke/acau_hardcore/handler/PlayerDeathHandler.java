@@ -30,34 +30,42 @@ public class PlayerDeathHandler {
                 Inventory inventory = player.getInventory();
                 IHardCoreInfo info = ModComponents.HARDCORE_INFO.get(player);
 
-                for (int i = 0; i < inventory.getContainerSize(); i++) {
-                    ItemStack itemStack = inventory.getItem(i);
-                    if (!itemStack.isEmpty()) {
-                        CustomData customData = itemStack.get(DataComponents.CUSTOM_DATA);
-                        if (customData != null && customData.copyTag().contains("KeepOnDeath")) {
-                            info.saveItem(i, itemStack);
+                MinecraftServer server = player.level().getServer();
+                if (server != null) {
+                    if (info.isStarted()) {
+                        var housingData = ModComponents.HOUSING_DATA.get(server.overworld());
+                        boolean keepInventory = false;
+
+                        if (info.getHousingID() != null) {
+                            HousingZone zone = housingData.getHousingZone(info.getHousingID());
+                            int tier = Math.max(1, zone.getTier() - 1);
+                            HousingStructureManager.changeTier(server.overworld(), zone, tier, Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "structure_" + tier), true);
+                            if (tier > 1) { keepInventory = true; }
                         }
 
-                        inventory.setItem(i, ItemStack.EMPTY);
-                    }
-                }
+                        for (int i = 0; i < inventory.getContainerSize(); i++) {
+                            ItemStack itemStack = inventory.getItem(i);
+                            if (!itemStack.isEmpty()) {
+                                if (keepInventory) {
+                                    info.saveItem(i, itemStack);
+                                }
+                                else {
+                                    CustomData customData = itemStack.get(DataComponents.CUSTOM_DATA);
+                                    if (customData != null && customData.copyTag().contains("KeepOnDeath")) {
+                                        info.saveItem(i, itemStack);
+                                    }
+                                }
 
-                if (info.isStarted()) {
-                    MinecraftServer server = player.level().getServer();
-                    if (server != null) {
+                                inventory.setItem(i, ItemStack.EMPTY);
+                            }
+                        }
+
                         String hardcoreType = info.getHardcoreType().toString();
                         long seconds = info.getCurrentLiveTime() / 20;
                         String liveTime = String.format("%02d 시간 %02d 분 %02d 초", seconds / 3600, (seconds % 3600) / 60, seconds % 60);
 
                         PykeLib.sendBroadcastMessage(server.getPlayerList().getPlayers(), COLOR.CHARCOAL.getColor(), String.format("&7%s님께서 %s 월드에서 생존하다 사망하셨습니다. (생존 시간: %s)", player.getDisplayName().getString(), hardcoreType.toUpperCase(), liveTime));
                         server.getPlayerList().getPlayers().forEach(Utils::refreshTabList);
-
-                        var housingData = ModComponents.HOUSING_DATA.get(server.overworld());
-                        if (info.getHousingID() != null) {
-                            HousingZone zone = housingData.getHousingZone(info.getHousingID());
-                            int tier = Math.max(1, zone.getTier() - 1);
-                            HousingStructureManager.changeTier(server.overworld(), zone, tier, Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "structure_" + tier), true);
-                        }
                     }
                 }
             }

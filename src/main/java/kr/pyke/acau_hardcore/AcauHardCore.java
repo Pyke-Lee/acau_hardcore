@@ -7,6 +7,7 @@ import kr.pyke.acau_hardcore.config.RuneConfig;
 import kr.pyke.acau_hardcore.data.randombox.BoxRegistry;
 import kr.pyke.acau_hardcore.data.shop.ShopManager;
 import kr.pyke.acau_hardcore.handler.ModHandlers;
+import kr.pyke.acau_hardcore.level.end.CustomSpikeDefinitions;
 import kr.pyke.acau_hardcore.level.end.EndIslandChunkGenerator;
 import kr.pyke.acau_hardcore.network.AcauHardCorePacket;
 import kr.pyke.acau_hardcore.party.PartyManager;
@@ -52,6 +53,7 @@ public class AcauHardCore implements ModInitializer {
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			SERVER_INSTANCE = null;
 			UserCommand.clearCooldowns();
+			CustomSpikeDefinitions.invalidateCache();
 		});
 
 		AcauHardCorePacket.registerCodec();
