@@ -7,6 +7,7 @@ import kr.pyke.acau_hardcore.config.RuneConfig;
 import kr.pyke.acau_hardcore.data.randombox.BoxRegistry;
 import kr.pyke.acau_hardcore.data.shop.ShopManager;
 import kr.pyke.acau_hardcore.handler.ModHandlers;
+import kr.pyke.acau_hardcore.level.end.EndIslandChunkGenerator;
 import kr.pyke.acau_hardcore.network.AcauHardCorePacket;
 import kr.pyke.acau_hardcore.party.PartyManager;
 import kr.pyke.acau_hardcore.registry.attribute.ModAttributes;
@@ -19,6 +20,9 @@ import kr.pyke.acau_hardcore.util.Tracker;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
@@ -63,6 +67,7 @@ public class AcauHardCore implements ModInitializer {
 		CommandRegistrationCallback.EVENT.register(ShopCommand::register);
 		CommandRegistrationCallback.EVENT.register(PartyCommand::register);
 		CommandRegistrationCallback.EVENT.register(RaidCommand::register);
+		CommandRegistrationCallback.EVENT.register(EndMapCommand::register);
 
 		BossRaidManager.register();
 
@@ -74,6 +79,8 @@ public class AcauHardCore implements ModInitializer {
 
 		BlockBreakQueue.register();
 		HousingBuildQueue.register();
+
+		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "end_island"), EndIslandChunkGenerator.CODEC);
 	}
 
 	public static List<ServerPlayer> getOps(MinecraftServer server) {

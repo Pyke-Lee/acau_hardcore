@@ -12,6 +12,7 @@
         "server.end.EnderDragonMixin",
         "server.end.EnderDragonPhase2Mixin",
         "server.end.EnderDragonPhaseManagerMixin",
+        "server.end.SpikeFeatureMixin",
         "server.entity.EntityArgumentMixin",
         "server.entity.EntityMixin",
         "server.entity.EntitySelectorParserMixin",
