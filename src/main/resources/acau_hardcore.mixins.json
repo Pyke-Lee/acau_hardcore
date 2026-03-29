@@ -19,6 +19,7 @@
         "server.entity.MobMixin",
         "server.entity.NaturalSpawnerMixin",
         "server.fluid.FlowingFluidMixin",
+        "server.item.ItemStackMixin",
         "server.level.ChunkMapMixin",
         "server.level.ServerLevelMixin",
         "server.loot.ApplyBonusCountMixin",

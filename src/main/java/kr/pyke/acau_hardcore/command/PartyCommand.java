@@ -71,6 +71,16 @@ public class PartyCommand {
             return 0;
         }
 
+        var info = ModComponents.HARDCORE_INFO.get(player);
+        if (!info.isStarted()) {
+            PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "하드코어를 시작해야 파티를 생성할 수 있습니다.");
+            return 0;
+        }
+        if (info.isJail()) {
+            PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "감옥에서 파티를 생성할 수 없습니다.");
+            return 0;
+        }
+
         String teamName = StringArgumentType.getString(context, "party");
         Party party = manager.createParty(server, player, teamName);
         if (party == null) {
@@ -102,8 +112,28 @@ public class PartyCommand {
             PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "자기 자신을 초대할 수 없습니다.");
             return 0;
         }
-        if (ModComponents.HARDCORE_INFO.get(target).getHardcoreType() != ModComponents.HARDCORE_INFO.get(player).getHardcoreType()) {
+
+        var selfInfo = ModComponents.HARDCORE_INFO.get(player);
+        var targetInfo = ModComponents.HARDCORE_INFO.get(target);
+
+        if (targetInfo.getHardcoreType() != selfInfo.getHardcoreType()) {
             PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "하드코어 유형이 같은 플레이어만 파티가 가능합니다.");
+            return 0;
+        }
+        if (!selfInfo.isStarted()) {
+            PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "하드코어를 시작해야 파티원을 초대할 수 있습니다.");
+            return 0;
+        }
+        if (!targetInfo.isStarted()) {
+            PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "하드코어를 시작하지 않은 플레이어를 초대할 수 없습니다.");
+            return 0;
+        }
+        if (selfInfo.isJail()) {
+            PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "감옥에서 파티원을 초대할 수 없습니다.");
+            return 0;
+        }
+        if (targetInfo.isJail()) {
+            PykeLib.sendSystemMessage(player, COLOR.RED.getColor(), "감옥에 있는 플레이어를 초대할 수 없습니다.");
             return 0;
         }
 

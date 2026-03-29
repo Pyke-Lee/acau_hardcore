@@ -371,22 +371,25 @@ public class PartyManager extends SavedData {
             String name;
             float health;
             float maxHealth;
+            float absorption;
             boolean online;
 
             if (member != null) {
                 name = member.getDisplayName().getString();
                 health = member.getHealth();
                 maxHealth = member.getMaxHealth();
+                absorption = member.getAbsorptionAmount();
                 online = true;
             }
             else {
                 name = "오프라인";
-                health = 0f;
-                maxHealth = 20f;
+                health = 0.f;
+                maxHealth = 20.f;
+                absorption = 0.f;
                 online = false;
             }
 
-            memberDataList.add(new S2C_PartySyncPayload.MemberData(memberId, name, health, maxHealth, online));
+            memberDataList.add(new S2C_PartySyncPayload.MemberData(memberId, name, health, maxHealth, absorption, online));
         }
 
         S2C_PartySyncPayload payload = new S2C_PartySyncPayload(true, party.getLeaderID(), memberDataList);

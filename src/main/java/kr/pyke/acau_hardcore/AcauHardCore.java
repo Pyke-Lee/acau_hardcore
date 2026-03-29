@@ -15,6 +15,7 @@ import kr.pyke.acau_hardcore.registry.item.ModItems;
 import kr.pyke.acau_hardcore.registry.menu.ModMenus;
 import kr.pyke.acau_hardcore.util.BlockBreakQueue;
 import kr.pyke.acau_hardcore.util.HousingBuildQueue;
+import kr.pyke.acau_hardcore.util.Tracker;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -40,7 +41,10 @@ public class AcauHardCore implements ModInitializer {
 			ShopManager.load(server, false);
 			BoxRegistry.load(server, false);
 		});
-		ServerLifecycleEvents.SERVER_STARTED.register(server -> PartyManager.getServerState(server).restoreTeams(server));
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+			PartyManager.getServerState(server).restoreTeams(server);
+			Tracker.register();
+		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			SERVER_INSTANCE = null;
 			UserCommand.clearCooldowns();
@@ -60,6 +64,8 @@ public class AcauHardCore implements ModInitializer {
 		CommandRegistrationCallback.EVENT.register(PartyCommand::register);
 		CommandRegistrationCallback.EVENT.register(RaidCommand::register);
 
+		BossRaidManager.register();
+
 		ModAttributes.register();
 		ModHandlers.register();
 		ModItems.register();
@@ -68,8 +74,6 @@ public class AcauHardCore implements ModInitializer {
 
 		BlockBreakQueue.register();
 		HousingBuildQueue.register();
-
-		BossRaidManager.register();
 	}
 
 	public static List<ServerPlayer> getOps(MinecraftServer server) {

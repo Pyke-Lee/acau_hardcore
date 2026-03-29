@@ -18,7 +18,7 @@ import java.util.UUID;
 public record S2C_PartySyncPayload(boolean inParty, UUID leaderId, List<MemberData> members) implements CustomPacketPayload {
     public static final Type<S2C_PartySyncPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "s2c_party_sync"));
 
-    public record MemberData(UUID uuid, String name, float health, float maxHealth, boolean online) { }
+    public record MemberData(UUID uuid, String name, float health, float maxHealth, float absorption, boolean online) { }
 
     public static final StreamCodec<FriendlyByteBuf, MemberData> MEMBER_CODEC = new StreamCodec<>() {
         @Override
@@ -27,8 +27,9 @@ public record S2C_PartySyncPayload(boolean inParty, UUID leaderId, List<MemberDa
             String name = ByteBufCodecs.STRING_UTF8.decode(buf);
             float health = buf.readFloat();
             float maxHealth = buf.readFloat();
+            float absorption = buf.readFloat();
             boolean online = buf.readBoolean();
-            return new MemberData(uuid, name, health, maxHealth, online);
+            return new MemberData(uuid, name, health, maxHealth, absorption, online);
         }
 
         @Override
@@ -37,6 +38,7 @@ public record S2C_PartySyncPayload(boolean inParty, UUID leaderId, List<MemberDa
             ByteBufCodecs.STRING_UTF8.encode(buf, data.name());
             buf.writeFloat(data.health());
             buf.writeFloat(data.maxHealth());
+            buf.writeFloat(data.absorption());
             buf.writeBoolean(data.online());
         }
     };

@@ -1,5 +1,6 @@
 package kr.pyke.acau_hardcore.mixin.server.end;
 
+import com.google.common.collect.Lists;
 import kr.pyke.acau_hardcore.util.Tracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerBossEvent;
@@ -38,12 +39,11 @@ public abstract class EndDragonFightMixin {
     @Shadow private boolean dragonKilled;
     @Shadow private @Nullable DragonRespawnAnimation respawnStage;
     @Shadow private @Nullable BlockPos portalLocation;
-
     @Shadow @Final private BlockPos origin;
 
     @Shadow protected abstract BlockPattern.@Nullable BlockPatternMatch findExitPortal();
     @Shadow protected abstract void spawnExitPortal(boolean active);
-    @Shadow public abstract void tryRespawn();
+    @Shadow protected abstract void respawnDragon(List<EndCrystal> crystals);
 
     @Redirect(
         method = "updatePlayers",
@@ -72,23 +72,8 @@ public abstract class EndDragonFightMixin {
                 Entity dragon = this.level.getEntity(this.dragonUUID);
                 if (dragon instanceof EnderDragon) {
                     dragon.discard();
-
-                    for (SpikeFeature.EndSpike spike : SpikeFeature.getSpikesForLevel(this.level)) {
-                        for (EndCrystal crystal : this.level.getEntitiesOfClass(EndCrystal.class, spike.getTopBoundingBox())) {
-                            crystal.discard();
-                        }
-                    }
-
-                    for (Boat boat : this.level.getEntitiesOfClass(Boat.class, new AABB(this.origin).inflate(192d))) {
-                        boat.ejectPassengers();
-                        boat.discard();
-                    }
-
-                    for (BlockPos pos : Tracker.PLACED_BLOCK) {
-                        this.level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-                    }
-                    Tracker.PLACED_BLOCK.clear();
                 }
+                cleanEndWorld();
 
                 this.dragonUUID = null;
                 this.dragonKilled = true;
@@ -104,13 +89,35 @@ public abstract class EndDragonFightMixin {
 
     @Unique
     private void triggerAutoRespawn() {
-        if (this.portalLocation == null) {
+        BlockPos blockPos = this.portalLocation;
+
+        if (blockPos == null) {
             BlockPattern.BlockPatternMatch match = this.findExitPortal();
             if (match == null) {
                 this.spawnExitPortal(true);
             }
         }
 
-        this.tryRespawn();
+        List<EndCrystal> list = Lists.newArrayList();
+        this.respawnDragon(list);
+    }
+
+    @Unique
+    private void cleanEndWorld() {
+        for (SpikeFeature.EndSpike spike : SpikeFeature.getSpikesForLevel(this.level)) {
+            for (EndCrystal crystal : this.level.getEntitiesOfClass(EndCrystal.class, spike.getTopBoundingBox())) {
+                crystal.discard();
+            }
+        }
+
+        for (Boat boat : this.level.getEntitiesOfClass(Boat.class, new AABB(this.origin).inflate(192d))) {
+            boat.ejectPassengers();
+            boat.discard();
+        }
+
+        for (BlockPos pos : Tracker.PLACED_BLOCK.get(this.level.dimension())) {
+            this.level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+        }
+        Tracker.PLACED_BLOCK.get(this.level.dimension()).clear();
     }
 }

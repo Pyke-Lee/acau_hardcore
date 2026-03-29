@@ -60,7 +60,7 @@ public class EarthQuakePhase extends AbstractDragonSittingPhase {
             double angle = Math.toRadians(i * 5);
             double px = this.dragon.getX() + Math.cos(angle) * this.waveRadius;
             double pz = this.dragon.getZ() + Math.sin(angle) * this.waveRadius;
-            level.sendParticles(ParticleTypes.EXPLOSION, px, this.dragon.getY() - 2d, pz, 1, 0, 0, 0, 0);
+            level.sendParticles(ParticleTypes.EXPLOSION, px, this.dragon.getY() - 3d, pz, 1, 0, 0, 0, 0);
         }
     }
 

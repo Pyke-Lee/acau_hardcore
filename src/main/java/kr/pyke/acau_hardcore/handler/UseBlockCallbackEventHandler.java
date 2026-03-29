@@ -36,14 +36,14 @@ public class UseBlockCallbackEventHandler {
                     if (hitState.canBeReplaced()) {
                         targetPos = hitPos;
                     }
-                    Tracker.PLACED_BLOCK.add(targetPos);
+                    Tracker.PLACED_BLOCK.get(level.dimension()).add(targetPos);
                 }
 
                 if (heldItem.is(Items.BUCKET)) {
                     if (hitState.getFluidState().is(Fluids.WATER)) {
                         BlockPos relativePos = hitPos.relative(hitResult.getDirection());
-                        Tracker.PLACED_BLOCK.remove(hitPos);
-                        Tracker.PLACED_BLOCK.remove(relativePos);
+                        Tracker.PLACED_BLOCK.get(level.dimension()).remove(hitPos);
+                        Tracker.PLACED_BLOCK.get(level.dimension()).remove(relativePos);
                     }
                 }
             }

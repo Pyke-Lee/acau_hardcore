@@ -122,7 +122,7 @@ public class AcauHardCorePacket {
         ClientPlayNetworking.registerGlobalReceiver(S2C_OpenShopPayload.ID, (payload, context) -> context.client().execute(() -> AcauHardCoreClient.openShop(payload)));
 
         // S2C_OpenRaidSelectPayload
-        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenRaidSelectPayload.ID, (payload, context) -> context.client().execute(() -> AcauHardCoreClient.openRaidSelect(payload)));
+        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenRaidReadyPayload.ID, (payload, context) -> context.client().execute(() -> AcauHardCoreClient.openRaidReady(payload)));
 
         // S2C_OpenRaidReadyPayload
         ClientPlayNetworking.registerGlobalReceiver(S2C_OpenRaidSelectPayload.ID, (payload, context) -> context.client().execute(() -> AcauHardCoreClient.openRaidSelect(payload)));

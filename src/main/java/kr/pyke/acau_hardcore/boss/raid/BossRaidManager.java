@@ -54,10 +54,11 @@ public class BossRaidManager {
                 BOSS_RAID_TYPE raidType = session.getRaidType();
 
                 for (UUID id : session.getParticipants()) {
-                    if (id.equals(player.getUUID())) { continue; }
-
                     ServerPlayer member = server.getPlayerList().getPlayer(id);
                     if (member != null) {
+                        if (id.equals(player.getUUID())) { continue; }
+
+                        PykeLib.sendSystemMessage(member, COLOR.RED.getColor(), "파티 전원이 사망하여 레이드에 실패했습니다.");
                         ModComponents.HARDCORE_INFO.get(member).teleportPrevPosition();
                         member.setGameMode(GameType.SURVIVAL);
                     }

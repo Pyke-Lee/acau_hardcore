@@ -27,7 +27,7 @@ public class PartyHudOverlay {
         int screenHeight = guiGraphics.guiHeight();
 
         float baseScale = (float) mc.getWindow().getGuiScale() / 3.5f;
-        float finalScale = Math.max(0.8f, Math.min(baseScale, 1.2f));
+        float finalScale = Math.clamp(baseScale, 0.8f, 1.2f);
 
         int entryHeight = 24;
         int totalHeight = otherMembers.size() * entryHeight;
@@ -84,7 +84,7 @@ public class PartyHudOverlay {
 
         if (member.online()) {
             float healthRatio = member.maxHealth() > 0 ? member.health() / member.maxHealth() : 0f;
-            healthRatio = Math.max(0f, Math.min(1f, healthRatio));
+            healthRatio = Math.clamp(healthRatio, 0f, 1f);
 
             guiGraphics.fill(textX, barY, textX + barWidth, barY + barHeight, 0xFF333333);
 
@@ -94,10 +94,20 @@ public class PartyHudOverlay {
                 guiGraphics.fill(textX, barY, textX + filledWidth, barY + barHeight, barColor);
             }
 
+            if (member.absorption() > 0.f) {
+                float absorptionRatio = Math.clamp(member.absorption() / member.maxHealth(), 0f, 1f);
+                int absorptionWidth = (int) (barWidth * absorptionRatio);
+                if (absorptionWidth > 0) {
+                    guiGraphics.fill(textX, barY, textX + absorptionWidth, barY + barHeight, 0xAAFFFF00);
+                }
+            }
+
             guiGraphics.fill(textX, barY, textX + barWidth, barY + 1, 0x40FFFFFF);
             guiGraphics.fill(textX, barY + barHeight - 1, textX + barWidth, barY + barHeight, 0x40000000);
 
-            String healthText = String.format("%.0f/%.0f", member.health(), member.maxHealth());
+            String healthText = member.absorption() > 0
+                ? String.format("%.0f(+%.0f)/%.0f", member.health(), member.absorption(), member.maxHealth())
+                : String.format("%.0f/%.0f", member.health(), member.maxHealth());
             guiGraphics.drawString(mc.font, healthText, textX + barWidth + 3, barY - 1, 0xFFCCCCCC, true);
         }
         else {
