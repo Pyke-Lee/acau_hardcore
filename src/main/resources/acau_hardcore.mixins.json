@@ -38,9 +38,11 @@
         "client.editbox.AbstractTextAreaWidgetMixin",
         "client.editbox.EditBoxMixin",
         "client.editbox.MultiLineEditBoxMixin",
+        "client.renderer.AvatarRendererMixin",
         "client.gui.GuiGraphicsAccessor",
         "client.gui.GuiMixin",
-        "client.player.MultiPlayerGameModeMixin"
+        "client.player.MultiPlayerGameModeMixin",
+        "client.state.EntityRenderStateMixin"
     ],
     "injectors": {
         "defaultRequire": 1

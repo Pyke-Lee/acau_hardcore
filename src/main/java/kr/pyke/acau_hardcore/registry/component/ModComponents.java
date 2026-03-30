@@ -7,8 +7,9 @@ import kr.pyke.acau_hardcore.registry.component.housing.HousingData;
 import kr.pyke.acau_hardcore.registry.component.housing.IHousingData;
 import kr.pyke.acau_hardcore.registry.component.mailbox.IMailBoxComponent;
 import kr.pyke.acau_hardcore.registry.component.mailbox.MailBoxComponent;
+import kr.pyke.acau_hardcore.registry.component.prefix.IPrefixes;
+import kr.pyke.acau_hardcore.registry.component.prefix.Prefixes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.Level;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -20,6 +21,7 @@ import org.ladysnake.cca.api.v3.world.WorldComponentInitializer;
 public class ModComponents implements EntityComponentInitializer, WorldComponentInitializer {
     public static final ComponentKey<IHardCoreInfo> HARDCORE_INFO = ComponentRegistry.getOrCreate(Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "hardcore_info"), IHardCoreInfo.class);
     public static final ComponentKey<IMailBoxComponent> MAIL_BOX = ComponentRegistry.getOrCreate(Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "mailbox"), IMailBoxComponent.class);
+    public static final ComponentKey<IPrefixes> PREFIXES = ComponentRegistry.getOrCreate(Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "prefixes"), IPrefixes.class);
 
     public static final ComponentKey<IHousingData> HOUSING_DATA = ComponentRegistry.getOrCreate(Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "housing_data"), IHousingData.class);
 
@@ -27,6 +29,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
         registry.registerForPlayers(HARDCORE_INFO, HardCoreInfo::new, RespawnCopyStrategy.ALWAYS_COPY);
         registry.registerForPlayers(MAIL_BOX, MailBoxComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        registry.registerForPlayers(PREFIXES, Prefixes::new, RespawnCopyStrategy.ALWAYS_COPY);
     }
 
     @Override

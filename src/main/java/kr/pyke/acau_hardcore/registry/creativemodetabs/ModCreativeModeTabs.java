@@ -16,6 +16,7 @@ public class ModCreativeModeTabs {
     private ModCreativeModeTabs() { }
 
     public static final ResourceKey<CreativeModeTab> CREATIVE_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "hardcore_creative_tab"));
+    public static final ResourceKey<CreativeModeTab> PREFIX_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "prefix_creative_tab"));
 
     public static final CreativeModeTab CREATIVE_TAB = FabricItemGroup.builder()
         .icon(() -> new ItemStack(ModItems.HARDCORE_TICKET))

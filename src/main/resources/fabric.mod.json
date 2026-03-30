@@ -21,7 +21,8 @@
 		"cardinal-components": [
 			"acau_hardcore:hardcore_info",
 			"acau_hardcore:mailbox",
-			"acau_hardcore:housing_data"
+			"acau_hardcore:housing_data",
+			"acau_hardcore:prefixes"
 		]
 	},
 	"depends": {

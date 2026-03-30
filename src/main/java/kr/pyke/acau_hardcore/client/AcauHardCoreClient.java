@@ -88,4 +88,12 @@ public class AcauHardCoreClient implements ClientModInitializer {
     public static void openRaidReady(S2C_OpenRaidReadyPayload payload) {
         Minecraft.getInstance().setScreen(BossRaidReadyScreen.create(payload.raidTypeName(), payload.isInitiator()));
     }
+
+    public static void openPrefix() {
+        Minecraft.getInstance().setScreen(PrefixScreen.create());
+    }
+
+    public static void selectPrefixResponse(S2C_SelectPrefixResponsePayload payload) {
+        PrefixScreen.handleResponse(payload.success());
+    }
 }

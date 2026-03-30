@@ -70,6 +70,7 @@ public class AcauHardCore implements ModInitializer {
 		CommandRegistrationCallback.EVENT.register(PartyCommand::register);
 		CommandRegistrationCallback.EVENT.register(RaidCommand::register);
 		CommandRegistrationCallback.EVENT.register(EndMapCommand::register);
+		CommandRegistrationCallback.EVENT.register(PrefixCommand::register);
 
 		BossRaidManager.register();
 

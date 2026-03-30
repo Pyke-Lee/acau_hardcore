@@ -2,10 +2,14 @@ package kr.pyke.acau_hardcore.mixin.server.player;
 
 import com.mojang.authlib.GameProfile;
 import kr.pyke.acau_hardcore.AcauHardCore;
-import kr.pyke.acau_hardcore.data.displayname.DisplayNameData;
 import kr.pyke.acau_hardcore.data.ServerSavedData;
+import kr.pyke.acau_hardcore.data.displayname.DisplayNameData;
+import kr.pyke.acau_hardcore.prefix.PrefixData;
+import kr.pyke.acau_hardcore.prefix.PrefixRegistry;
 import kr.pyke.acau_hardcore.registry.component.ModComponents;
+import kr.pyke.acau_hardcore.util.ColorParser;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -35,10 +39,23 @@ public abstract class ServerPlayerMixin extends Player {
         var info = ModComponents.HARDCORE_INFO.get(self);
 
         String displayName = DisplayNameData.getServerState(self.level().getServer()).getDisplayName(self.getUUID());
-        if (info.isStarted()) { displayName = displayName + String.format("(%s)", info.getHardcoreType().getDisplayName()); }
+        if (info.isStarted()) {
+            displayName = displayName + String.format("(%s)", info.getHardcoreType().getDisplayName());
+        }
+
+        MutableComponent nameComponent = Component.empty();
+        var prefixes = ModComponents.PREFIXES.get(self);
+
+        if (!prefixes.getSelectedPrefix().equals("none")) {
+            PrefixData prefixData = PrefixRegistry.get(prefixes.getSelectedPrefix());
+            if (prefixData != null) {
+                nameComponent.append(ColorParser.parse(prefixData.prefix())).append(Component.literal(" "));
+            }
+        }
 
         if (displayName != null && !displayName.isEmpty()) {
-            cir.setReturnValue(Component.literal(displayName));
+            nameComponent.append(Component.literal(displayName));
+            cir.setReturnValue(nameComponent);
         }
     }
 

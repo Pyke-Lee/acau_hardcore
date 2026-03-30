@@ -7,7 +7,6 @@ import kr.pyke.acau_hardcore.handler.RuneEventHandler;
 import kr.pyke.acau_hardcore.registry.attribute.ModAttributes;
 import kr.pyke.acau_hardcore.type.RUNE_EFFECT;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;

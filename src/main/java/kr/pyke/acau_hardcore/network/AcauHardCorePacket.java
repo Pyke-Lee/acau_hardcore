@@ -31,6 +31,9 @@ public class AcauHardCorePacket {
         PayloadTypeRegistry.playS2C().register(S2C_OpenRaidReadyPayload.ID, S2C_OpenRaidReadyPayload.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(S2C_RaidReadyUpdatePayload.ID, S2C_RaidReadyUpdatePayload.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(S2C_RaidSelectUpdatePayload.ID, S2C_RaidSelectUpdatePayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(S2C_PrefixSyncAllPayload.ID, S2C_PrefixSyncAllPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(S2C_OpenPrefixScreenPayload.ID, S2C_OpenPrefixScreenPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(S2C_SelectPrefixResponsePayload.ID, S2C_SelectPrefixResponsePayload.STREAM_CODEC);
 
         // Client → Server
         PayloadTypeRegistry.playC2S().register(C2S_ChangeDisplayNamePayload.ID, C2S_ChangeDisplayNamePayload.STREAM_CODEC);
@@ -48,6 +51,7 @@ public class AcauHardCorePacket {
         PayloadTypeRegistry.playC2S().register(C2S_StartHardCorePayload.ID, C2S_StartHardCorePayload.STREAM_CODEC);
         PayloadTypeRegistry.playC2S().register(C2S_RaidSelectPayload.ID, C2S_RaidSelectPayload.STREAM_CODEC);
         PayloadTypeRegistry.playC2S().register(C2S_RaidReadyPayload.ID, C2S_RaidReadyPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playC2S().register(C2S_SelectPrefixPayload.ID, C2S_SelectPrefixPayload.STREAM_CODEC);
     }
 
     public static void registerServer() {
@@ -81,6 +85,8 @@ public class AcauHardCorePacket {
         ServerPlayNetworking.registerGlobalReceiver(C2S_RaidSelectPayload.ID, C2S_RaidSelectPayload::handle);
         // C2S_RaidReadyPayload
         ServerPlayNetworking.registerGlobalReceiver(C2S_RaidReadyPayload.ID, C2S_RaidReadyPayload::handle);
+        // C2S_SelectPrefixPayload
+        ServerPlayNetworking.registerGlobalReceiver(C2S_SelectPrefixPayload.ID, C2S_SelectPrefixPayload::handle);
     }
 
     public static void registerClient() {
@@ -98,6 +104,8 @@ public class AcauHardCorePacket {
         ClientPlayNetworking.registerGlobalReceiver(S2C_ShopDataSyncAllPayload.ID, S2C_ShopDataSyncAllPayload::handle);
         // S2C_PartySyncPayload
         ClientPlayNetworking.registerGlobalReceiver(S2C_PartySyncPayload.ID, S2C_PartySyncPayload::handle);
+        // S2C_PrefixSyncAllPayload
+        ClientPlayNetworking.registerGlobalReceiver(S2C_PrefixSyncAllPayload.ID, S2C_PrefixSyncAllPayload::handle);
 
         registerClientHandle();
     }
@@ -132,5 +140,11 @@ public class AcauHardCorePacket {
 
         // S2C_RaidSelectUpdatePayload
         ClientPlayNetworking.registerGlobalReceiver(S2C_RaidSelectUpdatePayload.ID, (payload, context) -> context.client().execute(() -> RaidSelectState.INSTANCE.updateStatus(payload)));
+
+        // S2C_OpenPrefixScreenPayload
+        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenPrefixScreenPayload.ID, (payload, context) -> context.client().execute(() -> AcauHardCoreClient.openPrefix()));
+
+        // S2C_SelectPrefixResponsePayload
+        ClientPlayNetworking.registerGlobalReceiver(S2C_SelectPrefixResponsePayload.ID, (payload, context) -> context.client().execute(() -> AcauHardCoreClient.selectPrefixResponse(payload)));
     }
 }

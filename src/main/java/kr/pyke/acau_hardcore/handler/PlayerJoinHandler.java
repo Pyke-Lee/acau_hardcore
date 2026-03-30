@@ -3,11 +3,9 @@ package kr.pyke.acau_hardcore.handler;
 import kr.pyke.acau_hardcore.data.displayname.DisplayNameData;
 import kr.pyke.acau_hardcore.data.helprequest.HelpRequestData;
 import kr.pyke.acau_hardcore.data.shop.ShopManager;
-import kr.pyke.acau_hardcore.network.payload.s2c.S2C_HelpRequestSyncAllPayload;
-import kr.pyke.acau_hardcore.network.payload.s2c.S2C_SendBulkDisplayNamePayload;
-import kr.pyke.acau_hardcore.network.payload.s2c.S2C_ShopDataSyncAllPayload;
-import kr.pyke.acau_hardcore.network.payload.s2c.S2C_SyncBoxRegistryPayload;
+import kr.pyke.acau_hardcore.network.payload.s2c.*;
 import kr.pyke.acau_hardcore.party.PartyManager;
+import kr.pyke.acau_hardcore.prefix.PrefixRegistry;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
@@ -33,6 +31,8 @@ public class PlayerJoinHandler {
             ServerPlayNetworking.send(player, new S2C_ShopDataSyncAllPayload(ShopManager.getShops()));
 
             PartyManager.getServerState(server).onPlayerJoin(server, player);
+
+            ServerPlayNetworking.send(player, new S2C_PrefixSyncAllPayload(PrefixRegistry.getAll().stream().toList()));
         });
     }
 }
