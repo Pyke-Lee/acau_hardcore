@@ -1,4 +1,4 @@
-package kr.pyke.acau_hardcore.mixin.client.state;
+package kr.pyke.acau_hardcore.client.state;
 
 public interface IPrefixRenderState {
     String acau_hardcore$getPrefixID();

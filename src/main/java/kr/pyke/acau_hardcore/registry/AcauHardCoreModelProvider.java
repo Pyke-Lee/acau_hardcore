@@ -19,7 +19,7 @@ public class AcauHardCoreModelProvider extends FabricModelProvider {
     }
 
     @Override
-    public void generateItemModels(@NonNull ItemModelGenerators itemModelGenerators) {
+    public void generateItemModels(ItemModelGenerators itemModelGenerators) {
         itemModelGenerators.generateFlatItem(ModItems.HARDCORE_TICKET, ModelTemplates.FLAT_ITEM); // 하드코어 입장권
 
         itemModelGenerators.generateFlatItem(ModItems.DIRTY_WATER, ModelTemplates.FLAT_ITEM); // 더러운 물
@@ -57,5 +57,7 @@ public class AcauHardCoreModelProvider extends FabricModelProvider {
         itemModelGenerators.generateFlatItem(ModItems.HOUSING_TIER_1, ModelTemplates.FLAT_ITEM); // 구역 점유 문서(1단계)
         itemModelGenerators.generateFlatItem(ModItems.HOUSING_TIER_2, ModelTemplates.FLAT_ITEM); // 구역 강화 문서(2단계)
         itemModelGenerators.generateFlatItem(ModItems.HOUSING_TIER_3, ModelTemplates.FLAT_ITEM); // 구역 강화 문서(3단계)
+
+        itemModelGenerators.generateFlatItem(ModItems.PREFIX_ITEM, ModelTemplates.FLAT_ITEM); // 칭호 아이템
     }
 }

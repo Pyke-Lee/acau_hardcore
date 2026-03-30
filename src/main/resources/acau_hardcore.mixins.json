@@ -6,6 +6,8 @@
         "server.accessor.StructureTemplateAccessor",
         "server.block.BasePressurePlateBlockMixin",
         "server.block.FarmBlockMixin",
+        "server.chat.ChatTypeBoundMixin",
+        "server.chat.ChatTypeMixin",
         "server.end.DragonFireballMixin",
         "server.end.EndCryStalMixin",
         "server.end.EndDragonFightMixin",
@@ -38,10 +40,10 @@
         "client.editbox.AbstractTextAreaWidgetMixin",
         "client.editbox.EditBoxMixin",
         "client.editbox.MultiLineEditBoxMixin",
-        "client.renderer.AvatarRendererMixin",
         "client.gui.GuiGraphicsAccessor",
         "client.gui.GuiMixin",
         "client.player.MultiPlayerGameModeMixin",
+        "client.renderer.AvatarRendererMixin",
         "client.state.EntityRenderStateMixin"
     ],
     "injectors": {

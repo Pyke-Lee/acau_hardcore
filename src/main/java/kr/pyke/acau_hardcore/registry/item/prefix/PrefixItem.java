@@ -21,8 +21,8 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
-public class PrefixBookItem extends Item {
-    public PrefixBookItem(Properties properties) {
+public class PrefixItem extends Item {
+    public PrefixItem(Properties properties) {
         super(properties);
     }
 
@@ -49,7 +49,7 @@ public class PrefixBookItem extends Item {
 
         prefixes.addPrefix(prefixID);
         PrefixData prefixData = PrefixRegistry.get(prefixID);
-        String display = prefixData != null ? prefixData.prefix() : prefixID;
+        String display = prefixData != null ? ColorParser.parse(prefixData.prefix()).getString() : prefixID;
 
         PykeLib.sendSystemMessage((ServerPlayer) player, COLOR.LIME.getColor(), String.format("새로운 칭호 &7%s&r를 획득했습니다!", display));
         player.playSound(SoundEvents.UI_TOAST_IN, 1.f, 1.f);

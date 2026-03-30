@@ -1,7 +1,7 @@
 package kr.pyke.acau_hardcore.mixin.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import kr.pyke.acau_hardcore.mixin.client.state.IPrefixRenderState;
+import kr.pyke.acau_hardcore.client.state.IPrefixRenderState;
 import kr.pyke.acau_hardcore.prefix.PrefixData;
 import kr.pyke.acau_hardcore.prefix.PrefixRegistry;
 import kr.pyke.acau_hardcore.registry.component.ModComponents;

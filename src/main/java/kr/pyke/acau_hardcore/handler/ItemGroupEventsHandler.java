@@ -29,7 +29,7 @@ public class ItemGroupEventsHandler {
 
         ItemGroupEvents.modifyEntriesEvent(ModCreativeModeTabs.PREFIX_TAB_KEY).register(entries -> {
             for (String id : PrefixRegistry.getKeys()) {
-                ItemStack itemStack = new ItemStack(ModItems.PREFIX_BOOK);
+                ItemStack itemStack = new ItemStack(ModItems.PREFIX_ITEM);
                 CompoundTag compoundTag = new CompoundTag();
                 compoundTag.putString("prefix_id", id);
                 itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(compoundTag));

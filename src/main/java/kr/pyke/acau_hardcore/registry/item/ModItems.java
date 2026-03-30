@@ -10,7 +10,7 @@ import kr.pyke.acau_hardcore.registry.item.housing.HousingManageItem;
 import kr.pyke.acau_hardcore.registry.item.idcard.IDCardItem;
 import kr.pyke.acau_hardcore.registry.item.key.JailKeyItem;
 import kr.pyke.acau_hardcore.registry.item.medicalkit.MedicalKitItem;
-import kr.pyke.acau_hardcore.registry.item.prefix.PrefixBookItem;
+import kr.pyke.acau_hardcore.registry.item.prefix.PrefixItem;
 import kr.pyke.acau_hardcore.registry.item.randombox.RandomBoxItem;
 import kr.pyke.acau_hardcore.registry.item.rune.RuneItem;
 import kr.pyke.acau_hardcore.registry.item.scroll.TownReturnScrollItem;
@@ -74,7 +74,7 @@ public class ModItems {
     public static final Item HOUSING_TIER_2 = register("housing/tier_2", new HousingItem(new Item.Properties().setId(key("housing/tier_2")).stacksTo(99), 2));
     public static final Item HOUSING_TIER_3 = register("housing/tier_3", new HousingItem(new Item.Properties().setId(key("housing/tier_3")).stacksTo(99), 3));
 
-    public static final Item PREFIX_BOOK = registerFactory("prefix_book", PrefixBookItem::new);
+    public static final Item PREFIX_ITEM = registerFactory("prefix_item", PrefixItem::new);
 
     private static Item registerFactory(String name, Function<Item.Properties, Item> factory) {
         ResourceKey<Item> resourceKey = key(name);

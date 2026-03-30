@@ -1,5 +1,6 @@
 package kr.pyke.acau_hardcore.mixin.client.state;
 
+import kr.pyke.acau_hardcore.client.state.IPrefixRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

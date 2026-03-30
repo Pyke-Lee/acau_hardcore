@@ -18,7 +18,7 @@ public class ModCreativeModeTabs {
     public static final ResourceKey<CreativeModeTab> CREATIVE_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "hardcore_creative_tab"));
     public static final ResourceKey<CreativeModeTab> PREFIX_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath(AcauHardCore.MOD_ID, "prefix_creative_tab"));
 
-    public static final CreativeModeTab CREATIVE_TAB = FabricItemGroup.builder()
+    public static final CreativeModeTab DEFAULT_CREATIVE_TAB = FabricItemGroup.builder()
         .icon(() -> new ItemStack(ModItems.HARDCORE_TICKET))
         .title(Component.translatable("itemGroup.acau_hardcore.creative_tab"))
         .displayItems((itemDisplayParameters, output) -> {
@@ -52,7 +52,14 @@ public class ModCreativeModeTabs {
         })
         .build();
 
+    public static final CreativeModeTab PREFIX_CREATIVE_TAB = FabricItemGroup.builder()
+        .icon(() -> new ItemStack(ModItems.PREFIX_ITEM))
+        .title(Component.translatable("itemGroup.acau_hardcore.creative_tab"))
+        .displayItems((itemDisplayParameters, output) -> { })
+        .build();
+
     public static void register() {
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CREATIVE_TAB_KEY, CREATIVE_TAB);
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CREATIVE_TAB_KEY, DEFAULT_CREATIVE_TAB);
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, PREFIX_TAB_KEY, PREFIX_CREATIVE_TAB);
     }
 }

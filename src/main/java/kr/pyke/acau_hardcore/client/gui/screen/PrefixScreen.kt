@@ -13,13 +13,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aperso.composite.core.ComposeScreen
@@ -42,23 +45,104 @@ object PrefixScreen {
     private val ColorUnequipBtn = Color(0xFFE57373)
 
     private var isWaitingResponse = mutableStateOf(false)
+    private var currentSelectedId = mutableStateOf("none")
+    private var pendingRequestId = ""
 
     @JvmStatic
     fun handleResponse(success: Boolean) {
         isWaitingResponse.value = false
+        if (success) {
+            currentSelectedId.value = pendingRequestId
+        }
+    }
+
+    private fun parseColor(text: String): AnnotatedString {
+        return buildAnnotatedString {
+            val gradientPattern = "<gradient:#([A-Fa-f0-9]{6}):#([A-Fa-f0-9]{6})>(.*?)</gradient>".toRegex()
+            val hexPattern = "<#([A-Fa-f0-9]{6})>".toRegex()
+
+            var lastEnd = 0
+            val gradientMatches = gradientPattern.findAll(text)
+            for (match in gradientMatches) {
+                val before = text.substring(lastEnd, match.range.first)
+                if (before.isNotEmpty()) {
+                    appendHex(this, before, hexPattern)
+                }
+
+                val hex1 = match.groupValues[1]
+                val hex2 = match.groupValues[2]
+                val content = match.groupValues[3]
+
+                appendGradient(this, content, hex1, hex2)
+                lastEnd = match.range.last + 1
+            }
+
+            val tail = text.substring(lastEnd)
+            if (tail.isNotEmpty()) {
+                appendHex(this, tail, hexPattern)
+            }
+        }
+    }
+
+    private fun appendHex(builder: AnnotatedString.Builder, text: String, hexPattern: Regex) {
+        var lastEnd = 0
+        var currentColor: Color? = null
+
+        val matches = hexPattern.findAll(text)
+        for (match in matches) {
+            val before = text.substring(lastEnd, match.range.first)
+            if (before.isNotEmpty()) {
+                if (currentColor != null) {
+                    builder.withStyle(SpanStyle(color = currentColor)) { append(before) }
+                } else {
+                    builder.append(before)
+                }
+            }
+            currentColor = Color(match.groupValues[1].toLong(16) or 0xFF000000L)
+            lastEnd = match.range.last + 1
+        }
+        val tail = text.substring(lastEnd)
+        if (tail.isNotEmpty()) {
+            if (currentColor != null) {
+                builder.withStyle(SpanStyle(color = currentColor)) { append(tail) }
+            } else {
+                builder.append(tail)
+            }
+        }
+    }
+
+    private fun appendGradient(builder: AnnotatedString.Builder, text: String, hex1: String, hex2: String) {
+        val c1 = Color(hex1.toLong(16) or 0xFF000000L)
+        val c2 = Color(hex2.toLong(16) or 0xFF000000L)
+
+        val length = text.length
+        for (i in 0 until length) {
+            val ratio = if (length > 1) i.toFloat() / (length - 1) else 0f
+            val r = c1.red + (c2.red - c1.red) * ratio
+            val g = c1.green + (c2.green - c1.green) * ratio
+            val b = c1.blue + (c2.blue - c1.blue) * ratio
+
+            builder.withStyle(SpanStyle(color = Color(red = r, green = g, blue = b))) {
+                append(text[i].toString())
+            }
+        }
     }
 
     @JvmStatic
     fun create(): ComposeScreen {
         isWaitingResponse.value = false
+        val initialPlayer = Minecraft.getInstance().player
+        if (initialPlayer != null) {
+            currentSelectedId.value = ModComponents.PREFIXES.get(initialPlayer).selectedPrefix
+        }
 
         return ComposeScreen {
             val player = Minecraft.getInstance().player ?: return@ComposeScreen
             val isWaiting by remember { isWaitingResponse }
+            val selectedId by remember { currentSelectedId }
 
             val prefixesComponent = ModComponents.PREFIXES.get(player)
             val unlockedIds = prefixesComponent.prefixes
-            val selectedId = prefixesComponent.selectedPrefix
 
             val allUnlockedPrefixes = unlockedIds.mapNotNull { PrefixRegistry.get(it) }
 
@@ -74,6 +158,7 @@ object PrefixScreen {
                     return
                 }
                 isWaitingResponse.value = true
+                pendingRequestId = id
                 ClientPlayNetworking.send(C2S_SelectPrefixPayload(id))
             }
 
@@ -82,6 +167,7 @@ object PrefixScreen {
                     return
                 }
                 isWaitingResponse.value = true
+                pendingRequestId = "none"
                 ClientPlayNetworking.send(C2S_SelectPrefixPayload("none"))
             }
 
@@ -104,28 +190,19 @@ object PrefixScreen {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(24.dp)
+                            .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = ColorAccent,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "칭호 선택",
-                                    color = ColorTextMain,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp
-                                )
-                            }
+                            Text(
+                                text = "칭호 선택",
+                                color = ColorTextMain,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp
+                            )
 
                             Icon(
                                 Icons.Default.Close,
@@ -237,8 +314,7 @@ object PrefixScreen {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = data.prefix(),
-                    color = ColorTextMain,
+                    text = parseColor(data.prefix()),
                     fontSize = 16.sp,
                     fontWeight = if (isEquipped) {
                         FontWeight.Bold

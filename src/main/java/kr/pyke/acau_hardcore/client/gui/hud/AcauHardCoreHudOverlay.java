@@ -46,7 +46,7 @@ public class AcauHardCoreHudOverlay {
         String currencyText = String.format("소지금: %,d 원", info.getCurrency());
 
         float baseScale = (float) minecraft.getWindow().getGuiScale() / 3.5f;
-        float finalScale = Math.max(0.9f, Math.min(baseScale, 1.5f));
+        float finalScale = Math.clamp(baseScale, 0.9f, 1.5f);
 
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().scale(finalScale, finalScale);
@@ -70,35 +70,36 @@ public class AcauHardCoreHudOverlay {
         int dimTextX = startX + (dimBgWidth - dimTextWidth) / 2;
         guiGraphics.drawString(minecraft.font, dimensionText, dimTextX, dimY + 1, 0xFFFFFFFF, true);
 
-        int textX = startX + headBgSize + 4;
+        int textX = startX + headBgSize + 2;
 
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(textX, (float) startY);
-        guiGraphics.pose().scale(0.8f, 0.8f);
+        guiGraphics.pose().scale(0.83f, 0.83f);
 
         int localY = 0;
         int paddingX = 3;
         int textBgHeight = minecraft.font.lineHeight + 1;
 
         int minWidth = 90;
+        int lineSpacing = 1;
 
         int nameWidth = minecraft.font.width(displayName);
         guiGraphics.fill(0, localY, nameWidth + (paddingX * 2), localY + textBgHeight, 0x80000000);
         guiGraphics.drawString(minecraft.font, displayName, paddingX, localY + 1, 0xFFE0E0E0, true);
 
-        localY += textBgHeight + 2;
+        localY += textBgHeight + lineSpacing;
 
         int totalTimeWidth = Math.max(minWidth, minecraft.font.width(totalPlayTimeText));
         guiGraphics.fill(0, localY, totalTimeWidth + (paddingX * 2), localY + textBgHeight, 0x80000000);
         guiGraphics.drawString(minecraft.font, totalPlayTimeText, paddingX, localY + 1, 0xFFE0E0E0, true);
 
-        localY += textBgHeight + 2;
+        localY += textBgHeight + lineSpacing;
 
         int liveWidth = Math.max(minWidth, minecraft.font.width(liveAndEarthText));
         guiGraphics.fill(0, localY, liveWidth + (paddingX * 2), localY + textBgHeight, 0x80000000);
         guiGraphics.drawString(minecraft.font, liveAndEarthText, paddingX, localY + 1, 0xFFE0E0E0, true);
 
-        localY += textBgHeight + 2;
+        localY += textBgHeight + lineSpacing;
 
         int currencyWidth = minecraft.font.width(currencyText);
         guiGraphics.fill(0, localY, currencyWidth + (paddingX * 2), localY + textBgHeight, 0x80000000);

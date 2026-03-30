@@ -3,6 +3,7 @@ package kr.pyke.acau_hardcore;
 import kr.pyke.acau_hardcore.boss.raid.BossRaidManager;
 import kr.pyke.acau_hardcore.command.*;
 import kr.pyke.acau_hardcore.config.ModConfig;
+import kr.pyke.acau_hardcore.config.PrefixConfig;
 import kr.pyke.acau_hardcore.config.RuneConfig;
 import kr.pyke.acau_hardcore.data.randombox.BoxRegistry;
 import kr.pyke.acau_hardcore.data.shop.ShopManager;
@@ -43,6 +44,7 @@ public class AcauHardCore implements ModInitializer {
 			SERVER_INSTANCE = server;
 			ModConfig.load(server);
 			RuneConfig.load(server);
+			PrefixConfig.load(server);
 			ShopManager.load(server, false);
 			BoxRegistry.load(server, false);
 		});

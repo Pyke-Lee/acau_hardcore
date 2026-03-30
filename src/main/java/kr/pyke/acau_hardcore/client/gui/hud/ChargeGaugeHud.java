@@ -1,6 +1,6 @@
 package kr.pyke.acau_hardcore.client.gui.hud;
 
-import kr.pyke.acau_hardcore.client.gui.render.state.CircleGaugeRenderState;
+import kr.pyke.acau_hardcore.client.state.CircleGaugeRenderState;
 import kr.pyke.acau_hardcore.mixin.client.gui.GuiGraphicsAccessor;
 import kr.pyke.acau_hardcore.registry.item.scroll.TownReturnScrollItem;
 import net.minecraft.client.DeltaTracker;
@@ -36,7 +36,8 @@ public class ChargeGaugeHud {
         submitCircle(accessor, cx, cy, 20.f, 2.5f, 1.f, COLOR_BG);
         submitCircle(accessor, cx, cy, 20.f, 2.5f, progress, COLOR_GAUGE);
 
-        String timeLeft = (remainingTicks / 20.f < 1.f) ? String.format("%.1f", remainingTicks / 20.f) : String.format("%.0f", remainingTicks / 20.f);
+        float second = remainingTicks / 20.f;
+        String timeLeft = (second < 1.f) ? (second <= 0.f) ? "0" : String.format("%.1f", remainingTicks / 20.f) : String.format("%.0f", remainingTicks / 20.f);
         guiGraphics.drawCenteredString(mc.font, timeLeft, cx, cy - 4, 0xFFFFFFFF);
     }
 
