@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
@@ -64,6 +65,20 @@ public class DisplayNameData extends SavedData {
 
         Optional<GameProfile> profile = server.services().profileResolver().fetchById(uuid);
         return profile.map(GameProfile::name).orElse(displayName);
+    }
+
+    public UUID getUUID(String displayName) {
+        return displayNamesReverse.get(displayName);
+    }
+
+    public Player getPlayer(String displayName) {
+        UUID uuid = displayNamesReverse.get(displayName);
+        if (uuid == null) { return null; }
+
+        MinecraftServer server = AcauHardCore.SERVER_INSTANCE;
+        if (null == server) { return null; }
+
+        return server.getPlayerList().getPlayer(uuid);
     }
 
     public void setDisplayName(UUID uuid, String displayName) {

@@ -11,6 +11,7 @@ import kr.pyke.acau_hardcore.util.Utils;
 import kr.pyke.util.constants.COLOR;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -310,7 +311,8 @@ public class HardCoreInfo implements IHardCoreInfo {
                 }
             }
         }
-        if (completedTasks != null) {
+        if (completedTasks != null && this.player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.connection.send(new ClientboundClearTitlesPacket(true));
             this.timerTasks.removeAll(completedTasks);
         }
     }
@@ -468,18 +470,18 @@ public class HardCoreInfo implements IHardCoreInfo {
     }
 
     @Override
-    public void addTimerTask(int seconds, Runnable runnable) {
-        this.pendingTimerTasks.add(new TimerTask(seconds * 20, null, runnable));
+    public void addTimerTask(float seconds, Runnable runnable) {
+        this.pendingTimerTasks.add(new TimerTask((int) (seconds * 20), null, runnable));
     }
 
     @Override
-    public void addTimerTaskMessage(int seconds, String message, Runnable runnable) {
-        this.pendingTimerTasks.add(new TimerTask(seconds * 20, message, runnable));
+    public void addTimerTaskMessage(float seconds, String message, Runnable runnable) {
+        this.pendingTimerTasks.add(new TimerTask((int) (seconds * 20), message, runnable));
     }
 
     @Override
-    public void addTimerMessage(int seconds, String message) {
-        this.pendingTimerTasks.add(new TimerTask(seconds * 20, message, null));
+    public void addTimerMessage(float seconds, String message) {
+        this.pendingTimerTasks.add(new TimerTask((int) (seconds * 20), message, null));
     }
 
     @Override

@@ -58,9 +58,9 @@ public interface IHardCoreInfo extends ComponentV3, AutoSyncedComponent {
     void setPrevPosition();
     boolean teleportPrevPosition();
 
-    void addTimerTask(int seconds, Runnable runnable);
-    void addTimerMessage(int seconds, String message);
-    void addTimerTaskMessage(int seconds, String message, Runnable runnable);
+    void addTimerTask(float seconds, Runnable runnable);
+    void addTimerMessage(float seconds, String message);
+    void addTimerTaskMessage(float seconds, String message, Runnable runnable);
 
     void randomTargetTeleport();
 

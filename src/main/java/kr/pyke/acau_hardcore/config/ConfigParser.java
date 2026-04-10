@@ -18,9 +18,22 @@ public class ConfigParser {
 
         try {
             List<String> lines = Files.readAllLines(path);
+            boolean isMultiLine = false;
+            StringBuilder multiLineValue = new StringBuilder();
+            String currentKey = "";
+
             for (int i = 0; i < lines.size(); ++i) {
                 String line = lines.get(i).trim();
                 if (line.isEmpty() || line.startsWith("#")) { continue; }
+
+                if (isMultiLine) {
+                    multiLineValue.append(line);
+                    if (line.endsWith("]")) {
+                        entries.put(currentKey, multiLineValue.toString());
+                        isMultiLine = false;
+                    }
+                    continue;
+                }
 
                 int colonIndex = line.indexOf(':');
                 if (colonIndex == -1) {
@@ -36,10 +49,20 @@ public class ConfigParser {
                     continue;
                 }
 
-                entries.put(key, value);
+                if (value.startsWith("[") && !value.endsWith("]")) {
+                    isMultiLine = true;
+                    currentKey = key;
+                    multiLineValue.setLength(0);
+                    multiLineValue.append(value);
+                }
+                else {
+                    entries.put(key, value);
+                }
             }
         }
-        catch (Exception e) { AcauHardCore.LOGGER.error("Config 파일 읽기 실패: {}", path, e); }
+        catch (Exception e) {
+            AcauHardCore.LOGGER.error("Config 파일 읽기 실패: {}", path, e);
+        }
 
         return entries;
     }
@@ -63,7 +86,9 @@ public class ConfigParser {
             Files.createDirectories(path.getParent());
             Files.writeString(path, stringBuilder.toString());
         }
-        catch (IOException e) { AcauHardCore.LOGGER.error("Config 파일 저장 실패: {}", path, e); }
+        catch (IOException e) {
+            AcauHardCore.LOGGER.error("Config 파일 저장 실패: {}", path, e);
+        }
     }
 
     public sealed interface ConfigEntry {

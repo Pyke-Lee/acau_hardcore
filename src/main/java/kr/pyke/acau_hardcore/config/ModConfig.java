@@ -1,40 +1,43 @@
 package kr.pyke.acau_hardcore.config;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import kr.pyke.acau_hardcore.AcauHardCore;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class ModConfig {
     private static final String FILE_NAME = "hardcore_config.conf";
     public static ModConfig INSTANCE = new ModConfig();
 
-    // 갈증 시스템
+    private static final Gson GSON = new GsonBuilder().create();
+    private static final Random RANDOM = new Random();
+
     public int thirstDecreaseChance = 300;
     public float thirstExhaustionRate = 0.025f;
 
-    // 더러운 물 디버프 확률
     public float dirtyWaterPenaltyChance = 0.25f;
     public float dirtyWaterPenaltyDuration = 30.f;
 
-    // 몬스터 강화
     public double expertHealthMultiplier = 0.5d;
     public double expertDamageMultiplier = 0.3d;
     public double expertSpeedMultiplier = 0.1d;
     public double expertArmorBonus = 4d;
     public double expertKnockbackResistance = 0.2d;
 
-    // 도움 요청 쿨타임
     public float helpRequestCooldown = 30.f;
 
-    // 희귀 광물 기본 드랍 확률
     public float rareOreDropChance = 0.005f;
     public float expertRareOreDropChance = 0.01f;
 
-    // 엔더 드래곤 설정
     public double dragonMaxHealth = 200d;
     public float dragonHeadDamage = 10.f;
     public float dragonWingDamage = 5.f;
@@ -50,6 +53,15 @@ public class ModConfig {
     public float expertDragonFireballDamage = 8.f;
     public int expertDragonEarthQuakeTicks = 100;
     public float expertDragonEarthQuakeDamage = 13.f;
+
+    public List<Integer> donationRewards = new ArrayList<>(List.of(5000, 10000, 20000, 30000, 50000, 90000, 100000, 300000, 500000, 1000000));
+
+    public List<MobEntry> mobs = new ArrayList<>(List.of(
+        new MobEntry("minecraft:zombie", "좀비", 1, 2, "minecraft:iron_sword"),
+        new MobEntry("minecraft:skeleton", "스켈레톤", 1, 2, "minecraft:bow")
+    ));
+
+    public record MobEntry(String id, String display, int min, int max, String weapon) { }
 
     public static void load(MinecraftServer server) {
         Path path = getConfigPath(server);
@@ -97,6 +109,10 @@ public class ModConfig {
         config.expertDragonEarthQuakeTicks = getInt(data, "expert_dragon_earthquake_ticks", config.expertDragonEarthQuakeTicks, 1, 1024);
         config.expertDragonEarthQuakeDamage = getFloat(data, "expert_dragon_earthquake_damage", config.expertDragonEarthQuakeDamage, 0.f, 1024.f);
 
+        config.donationRewards = getIntegerList(data, "donation_rewards", config.donationRewards);
+
+        config.mobs = getMobList(data, "mobs", config.mobs);
+
         INSTANCE = config;
         AcauHardCore.LOGGER.info("Config 로드 완료: {}", path);
     }
@@ -104,6 +120,28 @@ public class ModConfig {
     public static void save(MinecraftServer server) {
         Path path = getConfigPath(server);
         ModConfig config = INSTANCE;
+
+        StringBuilder mobsStr = new StringBuilder();
+        mobsStr.append("[\n");
+        for (int i = 0; i < config.mobs.size(); i++) {
+            MobEntry mob = config.mobs.get(i);
+            mobsStr.append("    { \"id\": \"").append(mob.id())
+                .append("\", \"display\": \"").append(mob.display())
+                .append("\", \"min\": ").append(mob.min())
+                .append(", \"max\": ").append(mob.max());
+
+            if (mob.weapon() != null && !mob.weapon().isEmpty()) {
+                mobsStr.append(", \"weapon\": \"").append(mob.weapon()).append("\"");
+            }
+
+            mobsStr.append(" }");
+
+            if (i < config.mobs.size() - 1) {
+                mobsStr.append(",");
+            }
+            mobsStr.append("\n");
+        }
+        mobsStr.append("]");
 
         List<ConfigParser.ConfigEntry> entries = List.of(
             new ConfigParser.ConfigEntry.Comment("갈증 시스템"),
@@ -139,6 +177,7 @@ public class ModConfig {
             new ConfigParser.ConfigEntry.Comment("희귀 광물 기본 드랍 확률(0 ~ 1)"),
             new ConfigParser.ConfigEntry.Value("rare_ore_drop_chance", config.rareOreDropChance),
             new ConfigParser.ConfigEntry.Value("expert_rare_ore_drop_chance", config.expertRareOreDropChance),
+            new ConfigParser.ConfigEntry.BlankLine(),
 
             new ConfigParser.ConfigEntry.Comment("바닐라 엔더 드래곤 설정"),
             new ConfigParser.ConfigEntry.Comment("드래곤 최대 체력 [1 ~ 10000]"),
@@ -155,22 +194,32 @@ public class ModConfig {
             new ConfigParser.ConfigEntry.Value("dragon_earthquake_ticks", config.dragonEarthQuakeTicks),
             new ConfigParser.ConfigEntry.Comment("드래곤 지진파 데미지 [0 ~ 1024]"),
             new ConfigParser.ConfigEntry.Value("dragon_earthquake_damage", config.dragonEarthQuakeDamage),
+            new ConfigParser.ConfigEntry.BlankLine(),
 
             new ConfigParser.ConfigEntry.Comment("숙련자 엔더 드래곤 설정"),
             new ConfigParser.ConfigEntry.Comment("드래곤 최대 체력 [1 ~ 10000]"),
-            new ConfigParser.ConfigEntry.Value("dragon_max_health", config.expertDragonMaxHealth),
+            new ConfigParser.ConfigEntry.Value("expert_dragon_max_health", config.expertDragonMaxHealth),
             new ConfigParser.ConfigEntry.Comment("머리 타격 데미지 [0 ~ 1024]"),
-            new ConfigParser.ConfigEntry.Value("dragon_head_damage", config.expertDragonHeadDamage),
+            new ConfigParser.ConfigEntry.Value("expert_dragon_head_damage", config.expertDragonHeadDamage),
             new ConfigParser.ConfigEntry.Comment("날개 치기(넉백) 데미지 [0 ~ 1024]"),
-            new ConfigParser.ConfigEntry.Value("dragon_wing_damage", config.expertDragonWingDamage),
+            new ConfigParser.ConfigEntry.Value("expert_dragon_wing_damage", config.expertDragonWingDamage),
             new ConfigParser.ConfigEntry.Comment("브레스(바닥 잔류 구름) 틱당 데미지 [0 ~ 1024]"),
-            new ConfigParser.ConfigEntry.Value("dragon_breath_damage", config.expertDragonBreathDamage),
+            new ConfigParser.ConfigEntry.Value("expert_dragon_breath_damage", config.expertDragonBreathDamage),
             new ConfigParser.ConfigEntry.Comment("드래곤 파이어볼 폭발/직격 데미지 [0 ~ 1024]"),
-            new ConfigParser.ConfigEntry.Value("dragon_fireball_damage", config.expertDragonFireballDamage),
+            new ConfigParser.ConfigEntry.Value("expert_dragon_fireball_damage", config.expertDragonFireballDamage),
             new ConfigParser.ConfigEntry.Comment("드래곤 지진파 시전 간격 [1 ~ 1024]"),
-            new ConfigParser.ConfigEntry.Value("dragon_earthquake_ticks", config.expertDragonEarthQuakeTicks),
+            new ConfigParser.ConfigEntry.Value("expert_dragon_earthquake_ticks", config.expertDragonEarthQuakeTicks),
             new ConfigParser.ConfigEntry.Comment("드래곤 지진파 데미지 [0 ~ 1024]"),
-            new ConfigParser.ConfigEntry.Value("dragon_earthquake_damage", config.expertDragonEarthQuakeDamage)
+            new ConfigParser.ConfigEntry.Value("expert_dragon_earthquake_damage", config.expertDragonEarthQuakeDamage),
+            new ConfigParser.ConfigEntry.BlankLine(),
+
+            new ConfigParser.ConfigEntry.Comment("후원 시스템 설정"),
+            new ConfigParser.ConfigEntry.Comment("후원 금액 (기준: 원, 쉼표로 구분하여 작성)"),
+            new ConfigParser.ConfigEntry.Value("donation_rewards", String.join(", ", config.donationRewards.stream().map(String::valueOf).toList())),
+            new ConfigParser.ConfigEntry.BlankLine(),
+
+            new ConfigParser.ConfigEntry.Comment("몬스터 목록"),
+            new ConfigParser.ConfigEntry.Value("mobs", mobsStr.toString())
         );
 
         ConfigParser.save(path, entries);
@@ -185,6 +234,14 @@ public class ModConfig {
             AcauHardCore.LOGGER.error("Failed to load config file!", e);
             return false;
         }
+    }
+
+    public MobEntry getRandomMob() {
+        if (mobs == null || mobs.isEmpty()) {
+            AcauHardCore.LOGGER.warn("랜덤 몬스터 추출 실패: 몬스터 목록(mobs)이 비어있거나 null 상태입니다.");
+            return null;
+        }
+        return mobs.get(RANDOM.nextInt(mobs.size()));
     }
 
     private static Path getConfigPath(MinecraftServer server) {
@@ -241,6 +298,47 @@ public class ModConfig {
         }
         catch (NumberFormatException e) {
             AcauHardCore.LOGGER.warn("Config 파싱 오류: {}의 값 '{}'을 실수로 변환할 수 없습니다. 기본값 {} 사용", key, value, defaultValue);
+            return defaultValue;
+        }
+    }
+
+    private static List<Integer> getIntegerList(Map<String, String> data, String key, List<Integer> defaultValue) {
+        String value = data.get(key);
+        if (value == null) { return defaultValue; }
+        if (value.trim().isEmpty()) { return new ArrayList<>(); }
+
+        String cleaned = value.replace("[", "").replace("]", "").trim();
+        if (cleaned.isEmpty()) { return new ArrayList<>(); }
+
+        String[] parts = cleaned.split(",");
+        List<Integer> list = new ArrayList<>();
+
+        for (String part : parts) {
+            try {
+                list.add(Integer.parseInt(part.trim()));
+            }
+            catch (NumberFormatException e) {
+                AcauHardCore.LOGGER.error("Config 파싱 오류: {}의 리스트 전체 값 '{}' 중에서 '{}' 부분을 정수로 변환할 수 없어 제외합니다.", key, value, part.trim());
+            }
+        }
+        return list;
+    }
+
+    private static List<MobEntry> getMobList(Map<String, String> data, String key, List<MobEntry> defaultValue) {
+        String value = data.get(key);
+        if (value == null || value.trim().isEmpty()) { return defaultValue; }
+
+        try {
+            List<MobEntry> list = GSON.fromJson(value, new TypeToken<List<MobEntry>>(){}.getType());
+            if (list == null) { return defaultValue; }
+            return list;
+        }
+        catch (JsonSyntaxException e) {
+            AcauHardCore.LOGGER.error("Config 파싱 오류: {} 값을 몬스터 목록으로 변환할 수 없습니다. 문자열이 올바른 JSON 배열 형식인지 확인해주세요. 세부 원인: {}", key, e.getMessage());
+            return defaultValue;
+        }
+        catch (Exception e) {
+            AcauHardCore.LOGGER.error("Config 파싱 오류: {} 처리 중 알 수 없는 오류 발생. 세부 원인: {}", key, e.getMessage());
             return defaultValue;
         }
     }
